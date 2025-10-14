@@ -1,0 +1,198 @@
+﻿@model IEnumerable<Proyecto_v1.Models.Product>
+
+@{
+    ViewData["Title"] = "Productos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="kad-section" id="productos">
+    <div class="kad-wrap">
+        <header>
+            <h2 class="title">Catálogo de Productos</h2>
+        </header>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <div class="kad-products-grid">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var producto in Model)
+                {
+                    <article class="kad-product-card">
+                        <div class="kad-product-img" style="background-image:url('@producto.ImageUrl');" role="img" aria-label="@producto.Name"></div>
+                        <div class="kad-product-info">
+                            <h3 class="kad-product-title">@producto.Name</h3>
+                            <p class="kad-product-desc">@producto.Description</p>
+                            <div class="kad-product-meta">
+                                <span class="kad-product-price">₡@producto.Price</span>
+                                <span class="kad-product-category">@producto.Category?.Name</span>
+                            </div>
+                            <div class="kad-product-actions">
+                                <form method="post" asp-controller="Cart" asp-action="AddToCart" class="add-to-cart-form">
+                                    <input type="hidden" name="productId" value="@producto.Id">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="kad-btn kad-btn--solid kad-btn--small">
+                                        <i class="fas fa-shopping-cart"></i> Agregar al Carrito
+                                    </button>
+                                </form>
+                                <a class="kad-btn kad-btn--outline kad-btn--small" asp-controller="Home" asp-action="DetallesProducto" asp-route-id="@producto.Id">Ver detalles</a>
+                            </div>
+                        </div>
+                    </article>
+                }
+            }
+            else
+            {
+                <p>No hay productos disponibles en este momento.</p>
+            }
+        </div>
+    </div>
+</section>
+
+<style>
+/* Grid de productos cuadrados alineados de izquierda a derecha */
+.kad-products-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 2rem;
+    justify-content: flex-start;
+}
+
+/* Tarjetas cuadradas */
+.kad-product-card {
+    background: #fff;
+    border-radius: 0.8rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s, transform 0.2s;
+    width: 250px;
+    height: 400px; /* Aumentado para acomodar botones */
+}
+
+.kad-product-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+/* Imagen cuadrada */
+.kad-product-img {
+    width: 100%;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+.kad-product-info {
+    padding: 0.8rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 200px; /* Aumentado para acomodar botones */
+}
+
+.kad-product-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+}
+
+.kad-product-desc {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 0;
+    flex: 1;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.kad-product-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
+}
+
+.kad-product-price {
+    color: #1a7f37;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.kad-product-category {
+    background: #f2f2f2;
+    border-radius: 0.4rem;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+.kad-product-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+.kad-btn--small {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.2s;
+}
+
+.kad-btn--solid {
+    background-color: #007bff;
+    color: white;
+}
+
+.kad-btn--solid:hover {
+    background-color: #0056b3;
+    color: white;
+}
+
+.kad-btn--outline {
+    background-color: transparent;
+    color: #007bff;
+    border: 1px solid #007bff;
+}
+
+.kad-btn--outline:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.add-to-cart-form {
+    margin: 0;
+}
+
+.alert {
+    margin-bottom: 1rem;
+}
+</style>

@@ -1,0 +1,268 @@
+@model Proyecto_v1.Models.Cart
+
+@{
+    ViewData["Title"] = "Carrito de Compras";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-shopping-cart"></i> 
+                Mi Carrito de Compras
+            </h2>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (Model.CartItems?.Any() == true)
+            {
+                <div class="cart-container">
+                    <div class="cart-items">
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <div class="cart-item">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        <div class="product-image">
+                                            @if (!string.IsNullOrEmpty(item.Product.ImageUrl))
+                                            {
+                                                <img src="@item.Product.ImageUrl" alt="@item.Product.Name" class="img-fluid rounded">
+                                            }
+                                            else
+                                            {
+                                                <div class="no-image">
+                                                    <i class="fas fa-image"></i>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h5 class="product-name">@item.Product.Name</h5>
+                                        <p class="product-category text-muted">@item.Product.Category?.Name</p>
+                                        <p class="product-size">Talla: @item.Product.Size</p>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <p class="unit-price">?@item.UnitPrice.ToString("N0")</p>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="quantity-controls">
+                                            <form method="post" asp-action="UpdateQuantity" class="d-inline">
+                                                <input type="hidden" name="cartItemId" value="@item.Id">
+                                                <div class="input-group input-group-sm">
+                                                    <button type="button" class="btn btn-outline-secondary quantity-btn" onclick="updateQuantity(@item.Id, @(item.Quantity - 1))">-</button>
+                                                    <input type="number" name="quantity" value="@item.Quantity" min="1" max="10" class="form-control text-center" onchange="updateQuantity(@item.Id, this.value)">
+                                                    <button type="button" class="btn btn-outline-secondary quantity-btn" onclick="updateQuantity(@item.Id, @(item.Quantity + 1))">+</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <p class="total-price fw-bold">?@item.TotalPrice.ToString("N0")</p>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <form method="post" asp-action="RemoveItem" class="d-inline">
+                                            <input type="hidden" name="cartItemId" value="@item.Id">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Estás seguro de que quieres eliminar este producto?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="cart-summary">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <form method="post" asp-action="ClearCart" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-warning" onclick="return confirm('¿Estás seguro de que quieres vaciar el carrito?')">
+                                        <i class="fas fa-broom"></i> Vaciar Carrito
+                                    </button>
+                                </form>
+                                <a href="@Url.Action("ViewProducts", "Home")" class="btn btn-outline-primary ms-2">
+                                    <i class="fas fa-arrow-left"></i> Continuar Comprando
+                                </a>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="summary-box">
+                                    <h4>Resumen del Pedido</h4>
+                                    <div class="summary-line">
+                                        <span>Productos (@Model.TotalItems):</span>
+                                        <span>?@Model.TotalAmount.ToString("N0")</span>
+                                    </div>
+                                    <div class="summary-line">
+                                        <span>Envío:</span>
+                                        <span>Gratis</span>
+                                    </div>
+                                    <hr>
+                                    <div class="summary-line fw-bold">
+                                        <span>Total:</span>
+                                        <span>?@Model.TotalAmount.ToString("N0")</span>
+                                    </div>
+                                    <button class="btn btn-primary w-100 mt-3" onclick="proceedToCheckout()">
+                                        <i class="fas fa-credit-card"></i> Proceder al Pago
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="empty-cart">
+                    <div class="text-center py-5">
+                        <i class="fas fa-shopping-cart empty-cart-icon"></i>
+                        <h3>Tu carrito está vacío</h3>
+                        <p class="text-muted">¡Agrega algunos productos para comenzar a comprar!</p>
+                        <a href="@Url.Action("ViewProducts", "Home")" class="btn btn-primary">
+                            <i class="fas fa-shopping-bag"></i> Ir a Comprar
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+.cart-container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.cart-item {
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.product-image img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+}
+
+.no-image {
+    width: 80px;
+    height: 80px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    color: #6c757d;
+}
+
+.product-name {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.quantity-controls .input-group {
+    width: 120px;
+}
+
+.quantity-btn {
+    width: 35px;
+}
+
+.cart-summary {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-top: 1px solid #dee2e6;
+}
+
+.summary-box {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.summary-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.empty-cart-icon {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 1rem;
+}
+
+.empty-cart {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+
+<script>
+function updateQuantity(cartItemId, quantity) {
+    if (quantity < 1) {
+        if (confirm('¿Quieres eliminar este producto del carrito?')) {
+            // Enviar formulario de eliminación
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = '@Url.Action("RemoveItem")';
+            
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'cartItemId';
+            input.value = cartItemId;
+            
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        }
+        return;
+    }
+    
+    // Enviar formulario de actualización
+    const form = document.createElement('form');
+    form.method = 'post';
+    form.action = '@Url.Action("UpdateQuantity")';
+    
+    const cartItemInput = document.createElement('input');
+    cartItemInput.type = 'hidden';
+    cartItemInput.name = 'cartItemId';
+    cartItemInput.value = cartItemId;
+    
+    const quantityInput = document.createElement('input');
+    quantityInput.type = 'hidden';
+    quantityInput.name = 'quantity';
+    quantityInput.value = quantity;
+    
+    form.appendChild(cartItemInput);
+    form.appendChild(quantityInput);
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function proceedToCheckout() {
+    alert('Funcionalidad de pago en desarrollo. ¡Próximamente!');
+}
+</script>

@@ -1,40 +1,28 @@
-@{
-    ViewData["Title"] = "KADYC ó THE NEW";
-    Layout = null; // Usamos layout personalizado para esta p·gina
-}
-
-<!DOCTYPE html>
+Ôªø<!DOCTYPE html>
 <html lang="es">
 
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>@ViewData["Title"]</title>
+  <title>KADYC ‚Äî THE NEW</title>
   <meta name="description"
     content="KADYC: tienda minimalista (hombres y mujeres), nueva y segunda mano. Portada editorial." />
     <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
 </head>
 
 <body>
-    <!-- BotÛn flotante para formulario de contacto y catalogo -->
+    <!-- Bot√≥n flotante para formulario de contacto y catalogo -->
     <div class="kad-floating-form-cta">
-      <a class="kad-btn kad-btn--solid" href="#catalogo" aria-label="Ver cat·logo">Ver cat·logo</a>
-      <button id="open-contact-form" class="kad-btn kad-btn--outline" aria-label="Abrir formulario de contacto">Cont·ctanos</button>
-      @if (User.Identity.IsAuthenticated)
-      {
+      <a class="kad-btn kad-btn--solid" href="#catalogo" aria-label="Ver cat√°logo">Ver cat√°logo</a>
+      <button id="open-contact-form" class="kad-btn kad-btn--outline" aria-label="Abrir formulario de contacto">Cont√°ctanos</button>
         <a class="kad-btn kad-btn--solid" asp-controller="Home" asp-action="ViewProducts">Productos</a>
-      }
-      else
-      {
-        <a class="kad-btn kad-btn--solid" asp-area="Identity" asp-page="/Account/Login">Iniciar SesiÛn</a>
-      }
     </div>
 
     <div id="kad-form-modal" class="kad-form-modal" style="display:none;">
       <div class="kad-form-modal__backdrop"></div>
       <div class="kad-form-modal__content">
-        <button id="close-contact-form" class="kad-btn kad-btn--ghost" style="float:right">◊</button>
+        <button id="close-contact-form" class="kad-btn kad-btn--ghost" style="float:right">√ó</button>
         <form id="kad-form" class="kad-form" novalidate>
           <div class="kad-field">
             <label for="kad-nombre">Nombre *</label>
@@ -47,7 +35,7 @@
             <small class="kad-error" aria-live="polite"></small>
           </div>
           <div class="kad-field">
-            <label for="kad-tel">TelÈfono *</label>
+            <label for="kad-tel">Tel√©fono *</label>
             <input id="kad-tel" name="tel" type="tel" required pattern="\+?\d{7,15}" autocomplete="tel">
             <small class="kad-error" aria-live="polite"></small>
           </div>
@@ -68,35 +56,17 @@
     </div>
   <!-- TOP BAR -->
   <div class="topbar" role="navigation" aria-label="Barra superior">
-    <button class="burger" title="Men˙" aria-label="Abrir men˙" aria-controls="site-menu" aria-expanded="false">
+    <button class="burger" title="Men√∫" aria-label="Abrir men√∫" aria-controls="site-menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
 
     <div class="logo" aria-label="KADYC logo">KADYC</div>
     <div class="right">
-      @if (User.Identity.IsAuthenticated)
-      {
-        <span>Hola, @User.Identity.Name</span>
-        @if (User.IsInRole("Admin"))
-        {
-          <a asp-area="" asp-controller="Categories" asp-action="Index">CategorÌas</a>
-          <a asp-area="" asp-controller="Products" asp-action="Index">Productos</a>
-        }
-        <a asp-controller="Cart" asp-action="Index" class="cart-link">
-          <i class="fas fa-shopping-cart"></i> CESTA <span id="cart-count">[0]</span>
-        </a>
-        <form method="post" asp-area="Identity" asp-page="/Account/Logout" style="display:inline;">
-          <button type="submit" class="btn-link" style="border:none; background:none; text-decoration:underline; cursor:pointer;">CERRAR SESI”N</button>
-        </form>
-      }
-      else
-      {
-        <a asp-area="Identity" asp-page="/Account/Login">INICIAR SESI”N</a>
-        <a asp-area="Identity" asp-page="/Account/Register">REGISTRO</a>
-        <a href="javascript:void(0)" onclick="showLoginRequired()" class="cart-link-disabled">
-          <i class="fas fa-shopping-cart"></i> CESTA [0]
-        </a>
-      }
+      <!--<input class="search" type="search" placeholder="BUSCAR" aria-label="Buscar" />-->
+      <a href="#login">INICIAR SESI√ìN</a>
+      <a href="#ayuda">AYUDA</a>
+      <a href="#cesta">CESTA [0]</a>
+      <a asp-area="" asp-controller="Categories" asp-action="Index">Categorias</a>
     </div>
   </div>
 
@@ -105,29 +75,9 @@
   <aside id="site-menu" class="drawer" aria-hidden="true">
     <div class="drawer-header">
       <div class="logo">KADYC</div>
-      <button class="drawer-close" aria-label="Cerrar men˙">X</button>
+      <button class="drawer-close" aria-label="Cerrar men√∫">X</button>
     </div>
-    <nav class="drawer-nav" aria-label="Men˙ principal">
-      @if (User.Identity.IsAuthenticated)
-      {
-        <a asp-controller="Home" asp-action="ViewProducts" data-link>VER PRODUCTOS</a>
-        <a asp-controller="Cart" asp-action="Index" data-link>
-          <i class="fas fa-shopping-cart"></i> MI CARRITO <span id="cart-count-drawer">[0]</span>
-        </a>
-        @if (User.IsInRole("Admin"))
-        {
-          <a asp-controller="Products" asp-action="Index" data-link>GESTIONAR PRODUCTOS</a>
-          <a asp-controller="Categories" asp-action="Index" data-link>GESTIONAR CATEGORÕAS</a>
-        }
-      }
-      else
-      {
-        <a asp-area="Identity" asp-page="/Account/Login" data-link>INICIAR SESI”N</a>
-        <a asp-area="Identity" asp-page="/Account/Register" data-link>REGISTRARSE</a>
-        <a href="javascript:void(0)" onclick="showLoginRequired()" data-link>
-          <i class="fas fa-shopping-cart"></i> MI CARRITO
-        </a>
-      }
+    <nav class="drawer-nav" aria-label="Men√∫ principal">
       <a href="#mujer" data-link>MUJER</a>
       <a href="#hombre" data-link>HOMBRE</a>
       <a href="#segunda" data-link>SEGUNDA MANO</a>
@@ -142,13 +92,13 @@
   <!-- PRIMERA VISTA -->
   <section class="intro" id="inicio" aria-labelledby="main-title">
     <div class="intro-center">
-      <div class="kicker">DESPL¡ZATE HACIA ABAJO</div>
+      <div class="kicker">DESPL√ÅZATE HACIA ABAJO</div>
       <h1 id="main-title" class="title">THE NEW</h1>
       <div class="scroll-wrap">
         <div class="scroll-indicator"></div>
       </div>
     </div>
-    <div class="newsletter-mini">⁄NETE A NUESTRA NEWSLETTER</div>
+    <div class="newsletter-mini">√öNETE A NUESTRA NEWSLETTER</div>
   </section>
 
   <!-- DOBLE HERO -->
@@ -164,7 +114,7 @@
               background-image: url('https://i.pinimg.com/736x/d3/9a/1b/d39a1bde4cffa143b3fa2d506abcd61a.jpg');
             " role="img" aria-label="Editorial look 2"></div>
         <div class="caption">
-          THE NEW ∑ KADYC COLLECTION ∑ FALL/WINTER 2025
+          THE NEW ¬∑ KADYC COLLECTION ¬∑ FALL/WINTER 2025
         </div>
       </div>
     </div>
@@ -180,54 +130,59 @@
       </header>
       <div class="kad-testimonials-grid">
         <article class="kad-testimonial-card">
-          <p class="kad-testimonial-text">"°IncreÌble calidad y servicio! EncontrÈ piezas ˙nicas que no hallaba en
-            ning˙n otro lugar. KADYC es mi nueva tienda favorita."</p>
-          <p class="kad-testimonial-author">ó SofÌa M.</p>
+          <p class="kad-testimonial-text">"¬°Incre√≠ble calidad y servicio! Encontr√© piezas √∫nicas que no hallaba en
+            ning√∫n otro lugar. KADYC es mi nueva tienda favorita."</p>
+          <p class="kad-testimonial-author">‚Äî Sof√≠a M.</p>
         </article>
         <article class="kad-testimonial-card">
-          <p class="kad-testimonial-text">"El proceso de compra fue s˙per sencillo y la entrega rapidÌsima. La ropa de
-            segunda mano est· en perfectas condiciones. °Muy recomendado!"</p>
-          <p class="kad-testimonial-author">ó Carlos R.</p>
+          <p class="kad-testimonial-text">"El proceso de compra fue s√∫per sencillo y la entrega rapid√≠sima. La ropa de
+            segunda mano est√° en perfectas condiciones. ¬°Muy recomendado!"</p>
+          <p class="kad-testimonial-author">‚Äî Carlos R.</p>
         </article>
         <article class="kad-testimonial-card">
-          <p class="kad-testimonial-text">"Me encanta la misiÛn de KADYC de apoyar a pequeÒos emprendedores. Es una
-            plataforma con propÛsito y productos de alta calidad."</p>
-          <p class="kad-testimonial-author">ó Maria P.</p>
+          <p class="kad-testimonial-text">"Me encanta la misi√≥n de KADYC de apoyar a peque√±os emprendedores. Es una
+            plataforma con prop√≥sito y productos de alta calidad."</p>
+          <p class="kad-testimonial-author">‚Äî Maria P.</p>
         </article>
       </div>
     </div>
   </section>
+  <!-- Secciones destino -->
+  <!--<section id="mujer" class="section-target"></section>
+    <section id="hombre" class="section-target"></section>
+    <section id="segunda" class="section-target"></section>
+    <section id="novedades" class="section-target"></section>-->
 
   <!-- FOOTER -->
   <footer class="site-footer" id="footer" role="contentinfo">
-    <div class="footer-grid" aria-label="InformaciÛn del sitio">
+    <div class="footer-grid" aria-label="Informaci√≥n del sitio">
 
       <!-- Columna 1: About -->
       <section class="footer-col">
         <h3 class="footer-title">About us</h3>
         <details class="footer-accordion" name="footer-accordion">
-          <summary class="footer-summary">QuiÈnes somos</summary>
+          <summary class="footer-summary">Qui√©nes somos</summary>
           <div class="footer-panel">
             <p class="footer-text">
-              KADYC es un espacio digital para emprendedores de moda ónueva y segunda manoó
+              KADYC es un espacio digital para emprendedores de moda ‚Äînueva y segunda mano‚Äî
               donde los clientes encuentran variedad, calidad y precios accesibles.
             </p>
           </div>
         </details>
 
         <details class="footer-accordion" name="footer-accordion" open>
-          <summary class="footer-summary">MisiÛn y VisiÛn de KADYC</summary>
-          <summary class="footer-summary">MisiÛn</summary>
+          <summary class="footer-summary">Misi√≥n y Visi√≥n de KADYC</summary>
+          <summary class="footer-summary">Misi√≥n</summary>
           <div class="footer-panel">
             <p class="footer-text">
               Brindar un espacio confiable e innovador para ofrecer prendas nuevas y de segunda mano,
-              fomentando la colaboraciÛn y el crecimiento conjunto.
+              fomentando la colaboraci√≥n y el crecimiento conjunto.
             </p>
-            <summary class="footer-summary">VisiÛn</summary>
+            <summary class="footer-summary">Visi√≥n</summary>
             <div class="footer-panel">
               <p class="footer-text">
                 Consolidarnos como una plataforma de referencia en el comercio digital de moda, impulsando a
-                pequeÒos emprendimientos a crecer y posicionarse, y convirtiÈndonos en un punto de encuentro
+                peque√±os emprendimientos a crecer y posicionarse, y convirti√©ndonos en un punto de encuentro
                 inclusivo, sostenible y reconocido a nivel nacional.
               </p>
             </div>
@@ -242,7 +197,7 @@
           <nav class="footer-panel footer-list" aria-label="Opciones de contacto">
             <a href="#contacto">Formulario</a>
             <a href="mailto:contacto@kadyc.com">Email</a>
-            <a href="tel:+50600000000">TelÈfono</a>
+            <a href="tel:+50600000000">Tel√©fono</a>
           </nav>
         </details>
 
@@ -250,7 +205,7 @@
           <summary class="footer-summary">Ayuda y devoluciones</summary>
           <nav class="footer-panel footer-list">
             <a href="#faq">Preguntas frecuentes</a>
-            <a href="#envios">EnvÌos</a>
+            <a href="#envios">Env√≠os</a>
             <a href="#devoluciones">Devoluciones</a>
           </nav>
         </details>
@@ -258,7 +213,7 @@
 
       <!-- Columna 3: Store Locator -->
       <details class="footer-accordion" name="footer-accordion" open>
-        <summary class="footer-summary">UbicaciÛn</summary>
+        <summary class="footer-summary">Ubicaci√≥n</summary>
         <nav class="footer-panel footer-list" aria-label="Ubicaciones">
           <a href="https://maps.app.goo.gl/1HecDr4HAfbERMN89" target="_blank" rel="noopener noreferrer">
             Costa Rica - Nicoya
@@ -266,15 +221,17 @@
         </nav>
       </details>
 
+
       <!-- Columna 4: Legal -->
       <section class="footer-col">
         <h3 class="footer-title">Legal</h3>
 
         <details class="footer-accordion" name="footer-accordion" open>
-          <summary class="footer-summary">TÈrminos y PolÌticas</summary>
-          <nav class="footer-panel footer-list" aria-label="TÈrminos y polÌticas">
-            <a href="politicas/terminos.html">TÈrminos de uso</a>
-            <a href="politicas/privacidad.html">PolÌtica de Privacidad</a>
+          <summary class="footer-summary">T√©rminos y Pol√≠ticas</summary>
+          <nav class="footer-panel footer-list" aria-label="T√©rminos y pol√≠ticas">
+            <!-- Ajusta la ruta 'politicas/' si en tu proyecto es 'polticas/' -->
+            <a href="politicas/terminos.html">T√©rminos de uso</a>
+            <a href="politicas/privacidad.html">Pol√≠tica de Privacidad</a>
             <a href="#condiciones">Condiciones Generales</a>
           </nav>
         </details>
@@ -301,7 +258,7 @@
       </div>
 
       <div class="footer-brand" aria-label="Marca">KADYC</div>
-      <div class="footer-location" aria-label="UbicaciÛn actual">Costa Rica ñ Nicoya</div>
+      <div class="footer-location" aria-label="Ubicaci√≥n actual">Costa Rica ‚Äì Nicoya</div>
     </div>
 
     <section id="payment-logos" class="kad-section">
@@ -314,7 +271,7 @@
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/American_Express_logo_%282018%29.svg/1200px-American_Express_logo_%282018%29.svg.png"
               alt="American Express" loading="lazy">
-            <img src="https://upload.wikimedia.org/frameworks/commons/a/a4/Paypal_2014_logo.png" alt="PayPal"
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Paypal_2014_logo.png" alt="PayPal"
               loading="lazy">
             <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa" loading="lazy">
           </div>
@@ -322,75 +279,6 @@
       </div>
     </section>
   </footer>
-
-  <!-- Scripts para funcionalidad del carrito -->
-  @if (User.Identity.IsAuthenticated)
-  {
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        updateCartCount();
-    });
-
-    function updateCartCount() {
-        fetch('@Url.Action("GetCartCount", "Cart")')
-            .then(response => response.json())
-            .then(count => {
-                const cartCount = document.getElementById('cart-count');
-                if (cartCount) {
-                    cartCount.textContent = '[' + count + ']';
-                }
-                
-                const cartCountDrawer = document.getElementById('cart-count-drawer');
-                if (cartCountDrawer) {
-                    cartCountDrawer.textContent = '[' + count + ']';
-                }
-            })
-            .catch(error => console.error('Error updating cart count:', error));
-    }
-
-    window.updateCartCount = updateCartCount;
-    </script>
-  }
-  else
-  {
-    <script>
-    function showLoginRequired() {
-        alert('Debes iniciar sesiÛn para acceder al carrito de compras.');
-    }
-    </script>
-  }
-
-  <style>
-  .cart-link {
-      color: inherit;
-      text-decoration: none;
-      transition: color 0.2s;
-  }
-
-  .cart-link:hover {
-      color: #007bff;
-  }
-
-  .cart-link i {
-      margin-right: 0.25rem;
-  }
-
-  .cart-link-disabled {
-      color: #666;
-      cursor: pointer;
-      text-decoration: none;
-      transition: color 0.2s;
-  }
-
-  .cart-link-disabled:hover {
-      color: #007bff;
-  }
-
-  .cart-link-disabled i {
-      margin-right: 0.25rem;
-  }
-  </style>
-
 </body>
 
 </html>

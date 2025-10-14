@@ -1,16 +1,21 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Proyecto_v1.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using Proyecto_v1.Data;
 
 namespace Proyecto_v1.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly ApplicationDBContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ApplicationDBContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
         public IActionResult Index()
@@ -21,6 +26,17 @@ namespace Proyecto_v1.Controllers
         public IActionResult Estilos()
         {
             return View();
+        }
+
+        [Authorize] // Solo usuarios autenticados pueden ver productos
+        public async Task<IActionResult> ViewProducts()
+        {
+            var productos = await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.IsActive)
+                .ToListAsync();
+
+            return View(productos);
         }
 
         public IActionResult Privacy()
