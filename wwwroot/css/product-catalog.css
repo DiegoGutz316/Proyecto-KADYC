@@ -1,0 +1,515 @@
+/* Estilos para la página de catálogo de productos */
+
+/* Header del catálogo mejorado */
+.catalog-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.catalog-title-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.catalog-subtitle {
+    color: #666;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.catalog-cart-summary {
+    display: flex;
+    align-items: center;
+}
+
+.cart-summary-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.cart-summary-link:hover {
+    background: #0056b3;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+}
+
+.cart-summary-count {
+    background: rgba(255,255,255,0.2);
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+    font-size: 0.9rem;
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+/* Filtros */
+.catalog-filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filter-search {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 2px solid #e1e5e9;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+
+.category-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e1e5e9;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    background: white;
+    min-width: 200px;
+    transition: border-color 0.2s;
+}
+
+.category-select:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+/* Grid de productos mejorado */
+.kad-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+/* Tarjetas de productos mejoradas */
+.kad-product-card {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 500px;
+}
+
+.kad-product-card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+}
+
+/* Contenedor de imagen mejorado */
+.kad-product-image-container {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+}
+
+.kad-product-img {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.3s ease;
+}
+
+.kad-product-card:hover .kad-product-img {
+    transform: scale(1.05);
+}
+
+.kad-product-no-image {
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #dee2e6;
+    font-size: 3rem;
+}
+
+.product-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.kad-product-card:hover .product-overlay {
+    opacity: 1;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.quick-view-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.9);
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quick-view-btn:hover {
+    background: #007bff;
+    color: white;
+    transform: scale(1.1);
+}
+
+.out-of-stock-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: #dc3545;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Información del producto mejorada */
+.kad-product-info {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 280px;
+}
+
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+}
+
+.kad-product-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.3;
+    color: #2c3e50;
+    flex: 1;
+}
+
+.kad-product-category {
+    background: #e9ecef;
+    color: #6c757d;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-left: 0.5rem;
+}
+
+.kad-product-desc {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin: 0 0 1rem 0;
+    flex: 1;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.kad-product-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.75rem 0;
+    border-top: 1px solid #f1f3f4;
+}
+
+.kad-product-price {
+    color: #28a745;
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.stock-indicator {
+    font-size: 0.85rem;
+    color: #6c757d;
+    background: #f8f9fa;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+}
+
+.stock-indicator.out-of-stock {
+    color: #dc3545;
+    background: #f8d7da;
+}
+
+/* Acciones del producto mejoradas */
+.kad-product-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: auto;
+}
+
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.quantity-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #495057;
+}
+
+.quantity-select {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    font-size: 0.9rem;
+    background: white;
+}
+
+.kad-btn {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.kad-btn--cart {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.kad-btn--cart:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+}
+
+.kad-btn--cart:active {
+    transform: translateY(0);
+}
+
+.kad-btn--outline {
+    background: transparent;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+}
+
+.kad-btn--outline:hover {
+    background: #f8f9fa;
+    color: #495057;
+    border-color: #ced4da;
+}
+
+.kad-btn--disabled {
+    background: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.kad-btn--small {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+/* Botón flotante del carrito */
+.floating-cart {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.floating-cart.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.floating-cart-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 4px 20px rgba(0,123,255,0.4);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.floating-cart-btn:hover {
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(0,123,255,0.5);
+}
+
+.floating-cart-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #dc3545;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 1rem;
+    min-width: 1.5rem;
+    text-align: center;
+    line-height: 1;
+}
+
+/* Estado vacío */
+.empty-catalog {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6c757d;
+}
+
+.empty-catalog i {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    color: #dee2e6;
+}
+
+.empty-catalog h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #495057;
+}
+
+/* Alertas mejoradas */
+.alert {
+    margin-bottom: 1.5rem;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.alert i {
+    font-size: 1.1rem;
+}
+
+/* Animación fadeIn */
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .catalog-title-wrapper {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+    
+    .catalog-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-search {
+        min-width: unset;
+    }
+    
+    .kad-products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .kad-product-card {
+        height: auto;
+    }
+    
+    .floating-cart {
+        bottom: 1rem;
+        right: 1rem;
+    }
+    
+    .floating-cart-btn {
+        width: 50px;
+        height: 50px;
+    }
+}

@@ -5,15 +5,28 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<link rel="stylesheet" href="~/css/product-catalog.css" asp-append-version="true" />
+
 <section class="kad-section" id="productos">
     <div class="kad-wrap">
-        <header>
-            <h2 class="title">Catálogo de Productos</h2>
+        <header class="catalog-header">
+            <div class="catalog-title-wrapper">
+                <h2 class="title">Catálogo de Productos</h2>
+                <div class="catalog-cart-summary">
+                    <a asp-controller="Cart" asp-action="Index" class="cart-summary-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-summary-text">Mi Carrito</span>
+                        <span class="cart-summary-count" id="header-cart-count">[0]</span>
+                    </a>
+                </div>
+            </div>
+            <p class="catalog-subtitle">Descubre nuestra colección completa de productos únicos</p>
         </header>
 
         @if (TempData["Success"] != null)
         {
             <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i>
                 @TempData["Success"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
@@ -22,34 +35,115 @@
         @if (TempData["Error"] != null)
         {
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i>
                 @TempData["Error"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         }
 
-        <div class="kad-products-grid">
+        <!-- Filtros y búsqueda -->
+        <div class="catalog-filters">
+            <div class="filter-search">
+                <input type="text" id="product-search" placeholder="Buscar productos..." class="search-input">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+            <div class="filter-category">
+                <select id="category-filter" class="category-select">
+                    <option value="">Todas las categorías</option>
+                    @{
+                        var categories = Model?.Select(p => p.Category?.Name).Where(c => !string.IsNullOrEmpty(c)).Distinct();
+                        if (categories != null)
+                        {
+                            foreach (var category in categories)
+                            {
+                                <option value="@category">@category</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="kad-products-grid" id="products-grid">
             @if (Model != null && Model.Any())
             {
                 foreach (var producto in Model)
                 {
-                    <article class="kad-product-card">
-                        <div class="kad-product-img" style="background-image:url('@producto.ImageUrl');" role="img" aria-label="@producto.Name"></div>
+                    <article class="kad-product-card" data-category="@producto.Category?.Name" data-name="@producto.Name.ToLower()">
+                        <div class="kad-product-image-container">
+                            @if (!string.IsNullOrEmpty(producto.ImageUrl))
+                            {
+                                <div class="kad-product-img" style="background-image:url('@producto.ImageUrl');" role="img" aria-label="@producto.Name"></div>
+                            }
+                            else
+                            {
+                                <div class="kad-product-img kad-product-no-image" role="img" aria-label="@producto.Name">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                            }
+                            <div class="product-overlay">
+                                <div class="quick-actions">
+                                    @* <button class="quick-view-btn" onclick="showQuickView(@producto.Id)" title="Vista rápida">
+                                        <i class="fas fa-eye"></i>
+                                    </button> *@
+                                </div>
+                            </div>
+                            @if (producto.Stock <= 0)
+                            {
+                                <div class="out-of-stock-badge">Agotado</div>
+                            }
+                        </div>
                         <div class="kad-product-info">
-                            <h3 class="kad-product-title">@producto.Name</h3>
+                            <div class="product-header">
+                                <h3 class="kad-product-title">@producto.Name</h3>
+                                @if (!string.IsNullOrEmpty(producto.Category?.Name))
+                                {
+                                    <span class="kad-product-category">@producto.Category.Name</span>
+                                }
+                            </div>
                             <p class="kad-product-desc">@producto.Description</p>
                             <div class="kad-product-meta">
-                                <span class="kad-product-price">₡@producto.Price</span>
-                                <span class="kad-product-category">@producto.Category?.Name</span>
+                                <span class="kad-product-price">₡@producto.Price.ToString("N0")</span>
+                                @if (producto.Stock > 0)
+                                {
+                                    <span class="stock-indicator">@producto.Stock disponibles</span>
+                                }
+                                else
+                                {
+                                    <span class="stock-indicator out-of-stock">Sin stock</span>
+                                }
                             </div>
                             <div class="kad-product-actions">
-                                <form method="post" asp-controller="Cart" asp-action="AddToCart" class="add-to-cart-form">
-                                    <input type="hidden" name="productId" value="@producto.Id">
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" class="kad-btn kad-btn--solid kad-btn--small">
-                                        <i class="fas fa-shopping-cart"></i> Agregar al Carrito
+                                @if (producto.Stock > 0)
+                                {
+                                    <form method="post" asp-controller="Cart" asp-action="AddToCart" class="add-to-cart-form">
+                                        <input type="hidden" name="productId" value="@producto.Id">
+                                        <div class="quantity-selector">
+                                            <label for="quantity-@producto.Id" class="quantity-label">Cantidad:</label>
+                                            <select name="quantity" id="quantity-@producto.Id" class="quantity-select">
+                                                @for (int i = 1; i <= Math.Min(producto.Stock, 10); i++)
+                                                {
+                                                    <option value="@i">@i</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="kad-btn kad-btn--cart">
+                                            <i class="fas fa-shopping-cart"></i>
+                                            <span class="btn-text">Agregar al Carrito</span>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <button class="kad-btn kad-btn--disabled" disabled>
+                                        <i class="fas fa-times"></i>
+                                        Sin Stock
                                     </button>
-                                </form>
-                                <a class="kad-btn kad-btn--outline kad-btn--small" asp-controller="Home" asp-action="DetallesProducto" asp-route-id="@producto.Id">Ver detalles</a>
+                                }
+                                <a class="kad-btn kad-btn--outline kad-btn--small" asp-controller="Home" asp-action="DetallesProducto" asp-route-id="@producto.Id">
+                                    <i class="fas fa-info-circle"></i>
+                                    Ver detalles
+                                </a>
                             </div>
                         </div>
                     </article>
@@ -57,142 +151,121 @@
             }
             else
             {
-                <p>No hay productos disponibles en este momento.</p>
+                <div class="empty-catalog">
+                    <i class="fas fa-box-open"></i>
+                    <h3>No hay productos disponibles</h3>
+                    <p>No hay productos disponibles en este momento. ¡Vuelve pronto para ver nuestras novedades!</p>
+                </div>
             }
+        </div>
+
+        <!-- Botón flotante del carrito -->
+        <div class="floating-cart" id="floating-cart">
+            <a asp-controller="Cart" asp-action="Index" class="floating-cart-btn">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="floating-cart-count" id="floating-cart-count">0</span>
+            </a>
         </div>
     </div>
 </section>
 
-<style>
-/* Grid de productos cuadrados alineados de izquierda a derecha */
-.kad-products-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    margin-top: 2rem;
-    justify-content: flex-start;
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartCounts();
+    initializeCartFunctionality();
+    initializeFilters();
+    // initializeFloatingCart();
+});
+
+function updateCartCounts() {
+    fetch('@Url.Action("GetCartCount", "Cart")')
+        .then(response => response.json())
+        .then(count => {
+            // Actualizar todos los contadores
+            const headerCount = document.getElementById('header-cart-count');
+            const floatingCount = document.getElementById('floating-cart-count');
+            
+            if (headerCount) {
+                headerCount.textContent = '[' + count + ']';
+            }
+            
+            if (floatingCount) {
+                floatingCount.textContent = count;
+                // Mostrar/ocultar botón flotante según el contenido
+                const floatingCart = document.getElementById('floating-cart');
+                if (count > 0) {
+                    floatingCart.classList.add('show');
+                } else {
+                    floatingCart.classList.remove('show');
+                }
+            }
+        })
+        .catch(error => console.error('Error updating cart count:', error));
 }
 
-/* Tarjetas cuadradas */
-.kad-product-card {
-    background: #fff;
-    border-radius: 0.8rem;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: box-shadow 0.2s, transform 0.2s;
-    width: 250px;
-    height: 400px; /* Aumentado para acomodar botones */
+function initializeCartFunctionality() {
+    const addToCartForms = document.querySelectorAll('.add-to-cart-form');
+    
+    addToCartForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const button = this.querySelector('.kad-btn--cart');
+            const originalContent = button.innerHTML;
+            
+            // Mostrar estado de carga
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span class="btn-text">Agregando...</span>';
+            button.disabled = true;
+            
+            // Simular delay para mejor UX
+            setTimeout(() => {
+                button.innerHTML = '<i class="fas fa-check"></i> <span class="btn-text">¡Agregado!</span>';
+                button.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+                
+                // Restaurar estado original después de 2 segundos
+                setTimeout(() => {
+                    button.innerHTML = originalContent;
+                    button.style.background = '';
+                    button.disabled = false;
+                    updateCartCounts(); // Actualizar contadores
+                }, 2000);
+            }, 500);
+        });
+    });
 }
 
-.kad-product-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transform: translateY(-2px);
+function initializeFilters() {
+    const searchInput = document.getElementById('product-search');
+    const categoryFilter = document.getElementById('category-filter');
+    const productCards = document.querySelectorAll('.kad-product-card');
+    
+    function filterProducts() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedCategory = categoryFilter.value;
+        
+        productCards.forEach(card => {
+            const productName = card.dataset.name || '';
+            const productCategory = card.dataset.category || '';
+            
+            const matchesSearch = productName.includes(searchTerm);
+            const matchesCategory = !selectedCategory || productCategory === selectedCategory;
+            
+            if (matchesSearch && matchesCategory) {
+                card.style.display = 'flex';
+                card.style.animation = 'fadeIn 0.3s ease';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+    
+    searchInput.addEventListener('input', filterProducts);
+    categoryFilter.addEventListener('change', filterProducts);
 }
 
-/* Imagen cuadrada */
-.kad-product-img {
-    width: 100%;
-    height: 200px;
-    background-size: cover;
-    background-position: center;
-    flex-shrink: 0;
+function showQuickView(productId) {
+    // Implementar vista rápida del producto
+    window.location.href = '@Url.Action("DetallesProducto", "Home")?id=' + productId;
 }
 
-.kad-product-info {
-    padding: 0.8rem;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 200px; /* Aumentado para acomodar botones */
-}
-
-.kad-product-title {
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0 0 0.5rem 0;
-    line-height: 1.3;
-}
-
-.kad-product-desc {
-    font-size: 0.85rem;
-    color: #666;
-    margin: 0;
-    flex: 1;
-    line-height: 1.4;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.kad-product-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
-    margin: 0.5rem 0;
-}
-
-.kad-product-price {
-    color: #1a7f37;
-    font-weight: 700;
-    font-size: 1rem;
-}
-
-.kad-product-category {
-    background: #f2f2f2;
-    border-radius: 0.4rem;
-    padding: 0.15rem 0.5rem;
-    font-size: 0.8rem;
-}
-
-.kad-product-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-top: auto;
-}
-
-.kad-btn--small {
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
-    text-align: center;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    transition: background-color 0.2s;
-}
-
-.kad-btn--solid {
-    background-color: #007bff;
-    color: white;
-}
-
-.kad-btn--solid:hover {
-    background-color: #0056b3;
-    color: white;
-}
-
-.kad-btn--outline {
-    background-color: transparent;
-    color: #007bff;
-    border: 1px solid #007bff;
-}
-
-.kad-btn--outline:hover {
-    background-color: #007bff;
-    color: white;
-}
-
-.add-to-cart-form {
-    margin: 0;
-}
-
-.alert {
-    margin-bottom: 1rem;
-}
-</style>
+// Hacer la función disponible globalmente
+window.updateCartCounts = updateCartCounts;
+</script>

@@ -1,66 +1,289 @@
 ﻿@model Proyecto_v1.Models.Product
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Crear Producto";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Create</h1>
+<link rel="stylesheet" href="~/css/crud-responsive.css" asp-append-version="true" />
 
-<h4>Product</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+<div class="crud-container">
+    <!-- Header -->
+    <div class="crud-header">
+        <h1 class="crud-title">
+            <i class="fas fa-plus-circle"></i>
+            Crear Nuevo Producto
+        </h1>
+        <div class="crud-actions">
+            <a asp-action="Index" class="crud-btn crud-btn--secondary">
+                <i class="fas fa-arrow-left"></i>
+                Volver a la Lista
+            </a>
+        </div>
+    </div>
+
+    <div class="crud-form-container">
+        <div class="crud-form-header">
+            <h2 class="crud-form-title">Información del Producto</h2>
+            <p class="crud-form-subtitle">Complete todos los campos requeridos para agregar un nuevo producto al inventario.</p>
+        </div>
+
+        <form asp-action="Create" class="crud-form" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>Por favor, corrige los siguientes errores:</span>
             </div>
-            <div class="form-group">
-                <label asp-for="Size" class="control-label"></label>
-                <input asp-for="Size" class="form-control" />
-                <span asp-validation-for="Size" class="text-danger"></span>
+
+            <div class="form-grid">
+                <!-- Información básica -->
+                <div class="form-group">
+                    <label asp-for="Name" class="form-label">
+                        <i class="fas fa-tag"></i>
+                        @Html.DisplayNameFor(model => model.Name) *
+                    </label>
+                    <input asp-for="Name" class="form-control" placeholder="Ej: Camiseta básica blanca" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Size" class="form-label">
+                        <i class="fas fa-ruler"></i>
+                        @Html.DisplayNameFor(model => model.Size)
+                    </label>
+                    <select asp-for="Size" class="form-control">
+                        <option value="">Seleccionar talla</option>
+                        <option value="XS">XS (Extra Pequeña)</option>
+                        <option value="S">S (Pequeña)</option>
+                        <option value="M">M (Mediana)</option>
+                        <option value="L">L (Grande)</option>
+                        <option value="XL">XL (Extra Grande)</option>
+                        <option value="XXL">XXL (Doble Extra Grande)</option>
+                        <option value="Única">Talla Única</option>
+                    </select>
+                    <span asp-validation-for="Size" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="CategoryId" class="form-label">
+                        <i class="fas fa-folder"></i>
+                        @Html.DisplayNameFor(model => model.CategoryId) *
+                    </label>
+                    <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId">
+                        <option value="">Seleccionar categoría</option>
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                </div>
+
+                <!-- Descripción -->
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label asp-for="Description" class="form-label">
+                        <i class="fas fa-align-left"></i>
+                        @Html.DisplayNameFor(model => model.Description) *
+                    </label>
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Describe las características, materiales, cuidados, etc."></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <!-- Imagen -->
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label asp-for="ImageUrl" class="form-label">
+                        <i class="fas fa-image"></i>
+                        @Html.DisplayNameFor(model => model.ImageUrl)
+                    </label>
+                    <input asp-for="ImageUrl" class="form-control" type="url" placeholder="https://ejemplo.com/imagen.jpg" />
+                    <small class="form-text text-muted">
+                        <i class="fas fa-info-circle"></i>
+                        Ingresa la URL de una imagen del producto. Debe ser un enlace directo a la imagen.
+                    </small>
+                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                    
+                    <!-- Vista previa de imagen -->
+                    <div id="imagePreview" class="mt-3" style="display: none;">
+                        <label class="form-label">Vista previa:</label>
+                        <div style="max-width: 200px;">
+                            <img id="previewImg" src="" alt="Vista previa" class="img-fluid rounded border" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de precio y stock -->
+                <div class="form-group">
+                    <label asp-for="Price" class="form-label">
+                        <i class="fas fa-dollar-sign"></i>
+                        @Html.DisplayNameFor(model => model.Price) *
+                    </label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">₡</span>
+                        </div>
+                        <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" placeholder="0.00" />
+                    </div>
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Stock" class="form-label">
+                        <i class="fas fa-cubes"></i>
+                        @Html.DisplayNameFor(model => model.Stock) *
+                    </label>
+                    <input asp-for="Stock" class="form-control" type="number" min="0" placeholder="0" />
+                    <small class="form-text text-muted">
+                        <i class="fas fa-info-circle"></i>
+                        Cantidad disponible en inventario
+                    </small>
+                    <span asp-validation-for="Stock" class="text-danger"></span>
+                </div>
+
+                <!-- Estado activo -->
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="IsActive" type="checkbox" checked />
+                        <label class="form-check-label" asp-for="IsActive">
+                            <i class="fas fa-toggle-on"></i>
+                            @Html.DisplayNameFor(model => model.IsActive)
+                        </label>
+                    </div>
+                    <small class="form-text text-muted">
+                        <i class="fas fa-info-circle"></i>
+                        Los productos activos aparecerán en la tienda. Los inactivos se mantendrán ocultos.
+                    </small>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ImageUrl" class="control-label"></label>
-                <input asp-for="ImageUrl" class="form-control" />
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Stock" class="control-label"></label>
-                <input asp-for="Stock" class="form-control" />
-                <span asp-validation-for="Stock" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
-                </label>
-            </div>
-            <div class="form-group">
-                <label asp-for="CategoryId" class="control-label"></label>
-                <select asp-for="CategoryId" class ="form-control" asp-items="ViewBag.CategoryId"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+
+            <div class="form-actions">
+                <button type="submit" class="crud-btn crud-btn--success">
+                    <i class="fas fa-save"></i>
+                    Crear Producto
+                </button>
+                <a asp-action="Index" class="crud-btn crud-btn--secondary">
+                    <i class="fas fa-times"></i>
+                    Cancelar
+                </a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeImagePreview();
+    initializeFormValidation();
+    initializePriceFormatting();
+});
+
+function initializeImagePreview() {
+    const imageUrlInput = document.getElementById('ImageUrl');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    
+    if (imageUrlInput && imagePreview && previewImg) {
+        imageUrlInput.addEventListener('input', function() {
+            const url = this.value.trim();
+            
+            if (url && isValidImageUrl(url)) {
+                previewImg.src = url;
+                previewImg.onload = function() {
+                    imagePreview.style.display = 'block';
+                };
+                previewImg.onerror = function() {
+                    imagePreview.style.display = 'none';
+                };
+            } else {
+                imagePreview.style.display = 'none';
+            }
+        });
+    }
+}
+
+function isValidImageUrl(url) {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+    const lowerUrl = url.toLowerCase();
+    return imageExtensions.some(ext => lowerUrl.includes(ext)) || url.includes('imgur') || url.includes('unsplash');
+}
+
+function initializeFormValidation() {
+    const form = document.querySelector('.crud-form');
+    const requiredFields = form.querySelectorAll('[required]');
+    
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+            const value = field.value.trim();
+            if (!value) {
+                field.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                field.classList.remove('is-invalid');
+            }
+        });
+        
+        // Validar precio
+        const priceField = document.getElementById('Price');
+        if (priceField) {
+            const price = parseFloat(priceField.value);
+            if (isNaN(price) || price < 0) {
+                priceField.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                priceField.classList.remove('is-invalid');
+            }
+        }
+        
+        // Validar stock
+        const stockField = document.getElementById('Stock');
+        if (stockField) {
+            const stock = parseInt(stockField.value);
+            if (isNaN(stock) || stock < 0) {
+                stockField.classList.add('is-invalid');
+                isValid = false;
+            } else {
+                stockField.classList.remove('is-invalid');
+            }
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            
+            // Scroll al primer campo con error
+            const firstError = form.querySelector('.is-invalid');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                firstError.focus();
+            }
+        }
+    });
+    
+    // Remover validación al escribir
+    requiredFields.forEach(field => {
+        field.addEventListener('input', function() {
+            if (this.value.trim()) {
+                this.classList.remove('is-invalid');
+            }
+        });
+    });
+}
+
+function initializePriceFormatting() {
+    const priceField = document.getElementById('Price');
+    if (priceField) {
+        priceField.addEventListener('blur', function() {
+            const value = parseFloat(this.value);
+            if (!isNaN(value)) {
+                this.value = value.toFixed(2);
+            }
+        });
+    }
+}
+
+// Auto-resize textarea
+document.addEventListener('input', function(e) {
+    if (e.target.tagName === 'TEXTAREA') {
+        e.target.style.height = 'auto';
+        e.target.style.height = e.target.scrollHeight + 'px';
+    }
+});
+</script>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

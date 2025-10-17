@@ -1,0 +1,265 @@
+@model Proyecto_v1.Models.Product
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="product-image-container">
+                @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded product-main-image">
+                }
+                else
+                {
+                    <div class="no-image-placeholder">
+                        <i class="fas fa-image"></i>
+                        <p>Sin imagen disponible</p>
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="product-details">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a asp-action="Index">Inicio</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+                    </ol>
+                </nav>
+                
+                <h1 class="product-title">@Model.Name</h1>
+                
+                @if (Model.Category != null)
+                {
+                    <span class="badge bg-secondary product-category">@Model.Category.Name</span>
+                }
+                
+                <div class="product-price-section mt-3">
+                    <h2 class="product-price">?@Model.Price.ToString("N0")</h2>
+                </div>
+                
+                <div class="product-description mt-4">
+                    <h5>Descripción</h5>
+                    <p>@Model.Description</p>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(Model.Size))
+                {
+                    <div class="product-size mt-3">
+                        <h6>Talla: <span class="fw-normal">@Model.Size</span></h6>
+                    </div>
+                }
+                
+                <div class="product-stock mt-3">
+                    @if (Model.Stock > 0)
+                    {
+                        <p class="text-success"><i class="fas fa-check-circle"></i> @Model.Stock disponibles</p>
+                    }
+                    else
+                    {
+                        <p class="text-danger"><i class="fas fa-times-circle"></i> Agotado</p>
+                    }
+                </div>
+                
+                @if (User.Identity.IsAuthenticated && Model.Stock > 0)
+                {
+                    <div class="product-actions mt-4">
+                        <form method="post" asp-controller="Cart" asp-action="AddToCart" class="d-inline">
+                            <input type="hidden" name="productId" value="@Model.Id">
+                            <div class="row align-items-end">
+                                <div class="col-4">
+                                    <label for="quantity" class="form-label">Cantidad</label>
+                                    <select name="quantity" id="quantity" class="form-select">
+                                        @for (int i = 1; i <= Math.Min(Model.Stock, 10); i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-8">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                                        <i class="fas fa-shopping-cart"></i> Agregar al Carrito
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                }
+                else if (!User.Identity.IsAuthenticated)
+                {
+                    <div class="product-actions mt-4">
+                        <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión para Comprar
+                        </a>
+                    </div>
+                }
+                
+                <div class="product-info-tabs mt-5">
+                    <ul class="nav nav-tabs" id="productTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">
+                                Información
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping" type="button" role="tab">
+                                Envío
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="productTabsContent">
+                        <div class="tab-pane fade show active" id="info" role="tabpanel">
+                            <div class="mt-3">
+                                <h6>Características del producto</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>Nombre:</strong> @Model.Name</li>
+                                    @if (!string.IsNullOrEmpty(Model.Size))
+                                    {
+                                        <li><strong>Talla:</strong> @Model.Size</li>
+                                    }
+                                    <li><strong>Categoría:</strong> @(Model.Category?.Name ?? "Sin categoría")</li>
+                                    <li><strong>Stock:</strong> @Model.Stock unidades</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="shipping" role="tabpanel">
+                            <div class="mt-3">
+                                <h6>Información de envío</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-truck text-primary"></i> Envío gratis en compras mayores a ?50,000</li>
+                                    <li><i class="fas fa-clock text-primary"></i> Entrega en 3-5 días hábiles</li>
+                                    <li><i class="fas fa-shield-alt text-primary"></i> Garantía de satisfacción</li>
+                                    <li><i class="fas fa-undo text-primary"></i> Devoluciones gratuitas hasta 30 días</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Volver al inicio
+            </a>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <a asp-action="ViewProducts" class="btn btn-outline-primary ms-2">
+                    <i class="fas fa-th-large"></i> Ver todos los productos
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+.product-image-container {
+    position: sticky;
+    top: 2rem;
+}
+
+.product-main-image {
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.no-image-placeholder {
+    height: 400px;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    border-radius: 0.375rem;
+}
+
+.no-image-placeholder i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.product-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.product-category {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+}
+
+.product-price {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #28a745;
+    margin: 0;
+}
+
+.product-description {
+    line-height: 1.6;
+    color: #6c757d;
+}
+
+.product-actions .btn {
+    border-radius: 0.5rem;
+    font-weight: 600;
+}
+
+.nav-tabs .nav-link {
+    color: #6c757d;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    padding: 0.75rem 0;
+    margin-right: 2rem;
+}
+
+.nav-tabs .nav-link.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+    background: none;
+}
+
+.tab-content {
+    padding: 1rem 0;
+}
+
+.tab-pane ul li {
+    padding: 0.25rem 0;
+}
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Manejar envío del formulario de agregar al carrito
+            const addToCartForm = document.querySelector('form[action*="AddToCart"]');
+            if (addToCartForm) {
+                addToCartForm.addEventListener('submit', function(e) {
+                    const button = this.querySelector('button[type="submit"]');
+                    const originalText = button.innerHTML;
+                    
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Agregando...';
+                    button.disabled = true;
+                    
+                    // Restaurar después de un momento (esto se puede mejorar con AJAX)
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    }, 1000);
+                });
+            }
+        });
+    </script>
+}
