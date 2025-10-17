@@ -18,9 +18,45 @@ namespace Proyecto_v1.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            try
+            {
+                // Obtener productos destacados para la landing page
+                var featuredProducts = await _context.Products
+                    .Include(p => p.Category)
+                    .Where(p => p.IsActive)
+                    .OrderByDescending(p => p.Id) // Los más recientes
+                    .Take(6) // Solo 6 productos destacados
+                    .ToListAsync();
+
+                return View(featuredProducts);
+            }
+            catch
+            {
+                // En caso de error, devolver vista vacía
+                return View(new List<Product>());
+            }
+        }
+
+        // Acción pública para ver detalles del producto
+        public async Task<IActionResult> DetallesProducto(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var product = await _context.Products
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(m => m.Id == id && m.IsActive);
+            
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            return View(product);
         }
 
         public IActionResult Estilos()

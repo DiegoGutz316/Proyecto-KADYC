@@ -1,77 +1,396 @@
 ﻿@model IEnumerable<Proyecto_v1.Models.Product>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Gestión de Productos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<link rel="stylesheet" href="~/css/crud-responsive.css" asp-append-version="true" />
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Size)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageUrl)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Stock)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsActive)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Size)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImageUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Stock)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsActive)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Category.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+<div class="crud-container">
+    <!-- Header -->
+    <div class="crud-header">
+        <h1 class="crud-title">
+            <i class="fas fa-box"></i>
+            Gestión de Productos
+        </h1>
+        <div class="crud-actions">
+            <a asp-action="Create" class="crud-btn crud-btn--primary">
+                <i class="fas fa-plus"></i>
+                Crear Producto
+            </a>
+            <a asp-controller="Home" asp-action="Index" class="crud-btn crud-btn--secondary">
+                <i class="fas fa-home"></i>
+                Volver al Inicio
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="crud-filters">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="filter-label">Buscar productos</label>
+                <input type="text" id="searchInput" class="filter-input" placeholder="Buscar por nombre, descripción..." />
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Filtrar por categoría</label>
+                <select id="categoryFilter" class="filter-input">
+                    <option value="">Todas las categorías</option>
+                    @{
+                        var categories = Model?.Select(p => p.Category?.Name).Where(c => !string.IsNullOrEmpty(c)).Distinct();
+                        if (categories != null)
+                        {
+                            foreach (var category in categories)
+                            {
+                                <option value="@category">@category</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Estado</label>
+                <select id="statusFilter" class="filter-input">
+                    <option value="">Todos</option>
+                    <option value="true">Activos</option>
+                    <option value="false">Inactivos</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <!-- Tabla para pantallas grandes -->
+        <div class="table-responsive-container">
+            <div class="table-responsive">
+                <table class="crud-table" id="productsTable">
+                    <thead>
+                        <tr>
+                            <th class="col-image">Imagen</th>
+                            <th class="col-name">
+                                <i class="fas fa-tag"></i>
+                                @Html.DisplayNameFor(model => model.Name)
+                            </th>
+                            <th>
+                                <i class="fas fa-ruler"></i>
+                                @Html.DisplayNameFor(model => model.Size)
+                            </th>
+                            <th class="col-description">
+                                <i class="fas fa-align-left"></i>
+                                @Html.DisplayNameFor(model => model.Description)
+                            </th>
+                            <th class="col-price">
+                                <i class="fas fa-dollar-sign"></i>
+                                @Html.DisplayNameFor(model => model.Price)
+                            </th>
+                            <th class="col-stock">
+                                <i class="fas fa-cubes"></i>
+                                @Html.DisplayNameFor(model => model.Stock)
+                            </th>
+                            <th>
+                                <i class="fas fa-toggle-on"></i>
+                                Estado
+                            </th>
+                            <th>
+                                <i class="fas fa-folder"></i>
+                                @Html.DisplayNameFor(model => model.Category)
+                            </th>
+                            <th class="col-actions">
+                                <i class="fas fa-cogs"></i>
+                                Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="product-row" 
+                                data-name="@item.Name.ToLower()" 
+                                data-category="@item.Category?.Name" 
+                                data-status="@item.IsActive.ToString().ToLower()">
+                                <td class="col-image">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl" alt="@item.Name" class="product-image-thumb" />
+                                    }
+                                    else
+                                    {
+                                        <div class="image-placeholder">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    }
+                                </td>
+                                <td class="col-name">@Html.DisplayFor(modelItem => item.Name)</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.Size))
+                                    {
+                                        <span class="badge bg-secondary">@item.Size</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td class="col-description" title="@item.Description">
+                                    @Html.DisplayFor(modelItem => item.Description)
+                                </td>
+                                <td class="col-price">₡@item.Price.ToString("N0")</td>
+                                <td class="col-stock">
+                                    @{
+                                        var stockClass = item.Stock > 10 ? "stock-indicator--high" : 
+                                                        item.Stock > 5 ? "stock-indicator--medium" : "stock-indicator--low";
+                                    }
+                                    <span class="stock-indicator @stockClass">@item.Stock</span>
+                                </td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="status-badge status-badge--active">
+                                            <i class="fas fa-check"></i> Activo
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-badge--inactive">
+                                            <i class="fas fa-times"></i> Inactivo
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.Category != null)
+                                    {
+                                        <span class="badge bg-info">@Html.DisplayFor(modelItem => item.Category.Name)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Sin categoría</span>
+                                    }
+                                </td>
+                                <td class="col-actions">
+                                    <div class="row-actions">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="row-action-btn row-action-btn--edit" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                            <span class="d-none d-md-inline">Editar</span>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="row-action-btn row-action-btn--details" title="Detalles">
+                                            <i class="fas fa-eye"></i>
+                                            <span class="d-none d-md-inline">Ver</span>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="row-action-btn row-action-btn--delete" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                            <span class="d-none d-md-inline">Eliminar</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Cards para móviles -->
+        <div class="mobile-cards" id="mobileCards">
+            @foreach (var item in Model)
+            {
+                <div class="product-card" 
+                     data-name="@item.Name.ToLower()" 
+                     data-category="@item.Category?.Name" 
+                     data-status="@item.IsActive.ToString().ToLower()">
+                    <div class="product-card-header">
+                        <h3 class="product-card-title">@item.Name</h3>
+                    </div>
+                    <div class="product-card-body">
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <div class="product-card-row">
+                                <span class="product-card-label">Imagen:</span>
+                                <div class="product-card-value">
+                                    <img src="@item.ImageUrl" alt="@item.Name" class="product-image-thumb" />
+                                </div>
+                            </div>
+                        }
+                        <div class="product-card-row">
+                            <span class="product-card-label">Precio:</span>
+                            <span class="product-card-value col-price">₡@item.Price.ToString("N0")</span>
+                        </div>
+                        <div class="product-card-row">
+                            <span class="product-card-label">Stock:</span>
+                            <span class="product-card-value">
+                                @{
+                                    var stockClass = item.Stock > 10 ? "stock-indicator--high" : 
+                                                    item.Stock > 5 ? "stock-indicator--medium" : "stock-indicator--low";
+                                }
+                                <span class="stock-indicator @stockClass">@item.Stock</span>
+                            </span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(item.Size))
+                        {
+                            <div class="product-card-row">
+                                <span class="product-card-label">Talla:</span>
+                                <span class="product-card-value">
+                                    <span class="badge bg-secondary">@item.Size</span>
+                                </span>
+                            </div>
+                        }
+                        <div class="product-card-row">
+                            <span class="product-card-label">Estado:</span>
+                            <span class="product-card-value">
+                                @if (item.IsActive)
+                                {
+                                    <span class="status-badge status-badge--active">
+                                        <i class="fas fa-check"></i> Activo
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-badge--inactive">
+                                        <i class="fas fa-times"></i> Inactivo
+                                    </span>
+                                }
+                            </span>
+                        </div>
+                        @if (item.Category != null)
+                        {
+                            <div class="product-card-row">
+                                <span class="product-card-label">Categoría:</span>
+                                <span class="product-card-value">
+                                    <span class="badge bg-info">@item.Category.Name</span>
+                                </span>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(item.Description))
+                        {
+                            <div class="product-card-row">
+                                <span class="product-card-label">Descripción:</span>
+                                <span class="product-card-value">@item.Description</span>
+                            </div>
+                        }
+                    </div>
+                    <div class="product-card-actions">
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="row-action-btn row-action-btn--edit">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="row-action-btn row-action-btn--details">
+                            <i class="fas fa-eye"></i> Ver
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="row-action-btn row-action-btn--delete">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <h3>No hay productos registrados</h3>
+            <p>Comienza agregando tu primer producto al inventario.</p>
+            <a asp-action="Create" class="crud-btn crud-btn--primary">
+                <i class="fas fa-plus"></i>
+                Crear Primer Producto
+            </a>
+        </div>
+    }
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeFilters();
+    initializeResponsiveTable();
+});
+
+function initializeFilters() {
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    
+    function filterProducts() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedCategory = categoryFilter.value;
+        const selectedStatus = statusFilter.value;
+        
+        // Filtrar tabla
+        const tableRows = document.querySelectorAll('.product-row');
+        tableRows.forEach(row => {
+            const name = row.dataset.name || '';
+            const category = row.dataset.category || '';
+            const status = row.dataset.status || '';
+            
+            const matchesSearch = name.includes(searchTerm);
+            const matchesCategory = !selectedCategory || category === selectedCategory;
+            const matchesStatus = !selectedStatus || status === selectedStatus;
+            
+            if (matchesSearch && matchesCategory && matchesStatus) {
+                row.style.display = '';
+                row.classList.add('fade-in');
+            } else {
+                row.style.display = 'none';
+                row.classList.remove('fade-in');
+            }
+        });
+        
+        // Filtrar cards móviles
+        const mobileCards = document.querySelectorAll('.product-card');
+        mobileCards.forEach(card => {
+            const name = card.dataset.name || '';
+            const category = card.dataset.category || '';
+            const status = card.dataset.status || '';
+            
+            const matchesSearch = name.includes(searchTerm);
+            const matchesCategory = !selectedCategory || category === selectedCategory;
+            const matchesStatus = !selectedStatus || status === selectedStatus;
+            
+            if (matchesSearch && matchesCategory && matchesStatus) {
+                card.style.display = '';
+                card.classList.add('fade-in');
+            } else {
+                card.style.display = 'none';
+                card.classList.remove('fade-in');
+            }
+        });
+    }
+    
+    searchInput.addEventListener('input', filterProducts);
+    categoryFilter.addEventListener('change', filterProducts);
+    statusFilter.addEventListener('change', filterProducts);
 }
-    </tbody>
-</table>
+
+function initializeResponsiveTable() {
+    const mediaQuery = window.matchMedia('(max-width: 576px)');
+    
+    function handleResponsiveChange(e) {
+        const tableContainer = document.querySelector('.table-responsive-container');
+        const mobileCards = document.querySelector('.mobile-cards');
+        
+        if (e.matches) {
+            // Modo móvil
+            if (tableContainer) tableContainer.style.display = 'none';
+            if (mobileCards) mobileCards.style.display = 'block';
+        } else {
+            // Modo escritorio
+            if (tableContainer) tableContainer.style.display = 'block';
+            if (mobileCards) mobileCards.style.display = 'none';
+        }
+    }
+    
+    // Verificar al cargar
+    handleResponsiveChange(mediaQuery);
+    
+    // Escuchar cambios
+    mediaQuery.addEventListener('change', handleResponsiveChange);
+}
+
+// Confirmar eliminación
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.row-action-btn--delete')) {
+        if (!confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+            e.preventDefault();
+        }
+    }
+});
+</script>

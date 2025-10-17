@@ -1,0 +1,393 @@
+/* ============================================
+   MODAL DE CONTACTO MEJORADO
+   ============================================ */
+
+.kad-form-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kad-form-modal--open {
+    opacity: 1;
+    visibility: visible;
+}
+
+.kad-form-modal__backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+}
+
+.kad-form-modal__content {
+    position: relative;
+    background: #ffffff;
+    border-radius: 1.5rem;
+    box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kad-form-modal--open .kad-form-modal__content {
+    transform: scale(1) translateY(0);
+}
+
+.kad-modal--shake {
+    animation: shake 0.6s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: scale(1) translateY(0) translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: scale(1) translateY(0) translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: scale(1) translateY(0) translateX(5px); }
+}
+
+/* ============================================
+   FORMULARIO MEJORADO
+   ============================================ */
+
+.kad-form {
+    padding: 2.5rem;
+    position: relative;
+}
+
+.kad-form::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    border-radius: 0 0 4px 4px;
+}
+
+.kad-form h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    text-align: center;
+}
+
+.kad-form .form-subtitle {
+    color: #6c757d;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.kad-field {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.kad-field label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.kad-field label i {
+    color: #007bff;
+    width: 16px;
+}
+
+.kad-field input,
+.kad-field textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.kad-field input::placeholder,
+.kad-field textarea::placeholder {
+    color: #9ca3af;
+    opacity: 1;
+}
+
+.kad-field input:focus,
+.kad-field textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.kad-field--error input,
+.kad-field--error textarea {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.kad-field--error label {
+    color: #dc3545;
+}
+
+.kad-error {
+    display: block;
+    color: #dc3545;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+    min-height: 1rem;
+}
+
+.kad-field textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* ============================================
+   BOTONES MEJORADOS
+   ============================================ */
+
+.kad-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    font-family: inherit;
+}
+
+.kad-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.kad-btn--solid {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.kad-btn--solid:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
+}
+
+.kad-btn--outline {
+    background: transparent;
+    color: #007bff;
+    border: 2px solid #007bff;
+}
+
+.kad-btn--outline:hover:not(:disabled) {
+    background: #007bff;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.kad-btn--ghost {
+    background: #f8f9fa;
+    color: #6c757d;
+    border: none;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    padding: 0;
+    font-size: 1.2rem;
+    z-index: 10;
+}
+
+.kad-btn--ghost:hover {
+    background: #e9ecef;
+    color: #495057;
+    transform: scale(1.1);
+}
+
+.kad-btn--loading {
+    pointer-events: none;
+}
+
+.kad-btn--loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* ============================================
+   STATUS MEJORADO
+   ============================================ */
+
+.kad-status {
+    margin-top: 1rem;
+    padding: 0.875rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.kad-status--success {
+    background: #d1edff;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+}
+
+.kad-status--error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.kad-status--info {
+    background: #cff4fc;
+    color: #055160;
+    border: 1px solid #b6effb;
+}
+
+/* ============================================
+   ANIMACIONES ADICIONALES
+   ============================================ */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.kad-form-modal--open .kad-form h2 {
+    animation: fadeInUp 0.6s ease 0.1s both;
+}
+
+.kad-form-modal--open .kad-form .form-subtitle {
+    animation: fadeInUp 0.6s ease 0.2s both;
+}
+
+.kad-form-modal--open .kad-field:nth-child(3) {
+    animation: fadeInUp 0.6s ease 0.3s both;
+}
+
+.kad-form-modal--open .kad-field:nth-child(4) {
+    animation: fadeInUp 0.6s ease 0.4s both;
+}
+
+.kad-form-modal--open .kad-field:nth-child(5) {
+    animation: fadeInUp 0.6s ease 0.5s both;
+}
+
+.kad-form-modal--open .kad-field:nth-child(6) {
+    animation: fadeInUp 0.6s ease 0.6s both;
+}
+
+.kad-form-modal--open .kad-btn--solid {
+    animation: fadeInUp 0.6s ease 0.7s both;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .kad-form-modal {
+        padding: 0.5rem;
+        align-items: flex-end;
+    }
+    
+    .kad-form-modal__content {
+        border-radius: 1.5rem 1.5rem 0 0;
+        max-height: 85vh;
+        width: 100%;
+        transform: translateY(100%);
+    }
+    
+    .kad-form-modal--open .kad-form-modal__content {
+        transform: translateY(0);
+    }
+    
+    .kad-form {
+        padding: 2rem 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .kad-form {
+        padding: 1.5rem 1rem;
+    }
+    
+    .kad-form h2 {
+        font-size: 1.5rem;
+    }
+    
+    .kad-field {
+        margin-bottom: 1.25rem;
+    }
+    
+    .kad-btn--ghost {
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+}

@@ -1,0 +1,241 @@
+/* Estilos para la sección de productos destacados */
+.featured-products {
+    padding: 4rem 0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    min-height: 80vh;
+}
+
+.featured-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.featured-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+}
+
+.featured-subtitle {
+    font-size: 1.1rem;
+    color: #6c757d;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.featured-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.featured-card {
+    background: #fff;
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(20px);
+    opacity: 0;
+}
+
+.featured-card.animate-in {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.featured-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.featured-image {
+    position: relative;
+    height: 280px;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.featured-card:hover .featured-image img {
+    transform: scale(1.05);
+}
+
+.featured-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #dee2e6;
+    font-size: 3rem;
+}
+
+.featured-overlay {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.featured-card:hover .featured-overlay {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.quick-add-btn, .quick-view-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.9);
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+    text-decoration: none;
+}
+
+.quick-add-btn:hover, .quick-view-btn:hover {
+    background: #007bff;
+    color: white;
+    transform: scale(1.1);
+}
+
+.featured-info {
+    padding: 1.5rem;
+}
+
+.featured-category {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: #e9ecef;
+    color: #6c757d;
+    font-size: 0.8rem;
+    font-weight: 500;
+    border-radius: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+}
+
+.featured-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+}
+
+.featured-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0 0 1rem 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.featured-price-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.featured-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: black;
+}
+
+.featured-stock {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.featured-stock.out-of-stock {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.featured-cta {
+    text-align: center;
+    margin-top: 3rem;
+}
+
+.kad-btn--large {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 0.75rem;
+}
+
+.featured-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6c757d;
+}
+
+.featured-empty i {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    color: #dee2e6;
+}
+
+.featured-empty h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #495057;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .featured-products {
+        padding: 2rem 0;
+    }
+    
+    .featured-title {
+        font-size: 2rem;
+    }
+    
+    .featured-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .featured-image {
+        height: 220px;
+    }
+}
+
+@media (max-width: 480px) {
+    .featured-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .featured-overlay {
+        position: static;
+        opacity: 1;
+        transform: none;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+}
