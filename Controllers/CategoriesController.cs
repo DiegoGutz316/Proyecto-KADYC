@@ -24,7 +24,13 @@ namespace Proyecto_v1.Controllers
         // GET: Categories
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categories.ToListAsync());
+            // Incluir la relación con Products para poder contar los productos por categoría
+            var categories = await _context.Categories
+                .Include(c => c.Products)
+                .OrderBy(c => c.Name)
+                .ToListAsync();
+                
+            return View(categories);
         }
 
         // GET: Categories/Details/5
@@ -36,6 +42,7 @@ namespace Proyecto_v1.Controllers
             }
 
             var category = await _context.Categories
+                .Include(c => c.Products)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (category == null)
             {
@@ -75,7 +82,9 @@ namespace Proyecto_v1.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories.FindAsync(id);
+            var category = await _context.Categories
+                .Include(c => c.Products)
+                .FirstOrDefaultAsync(c => c.Id == id);
             if (category == null)
             {
                 return NotFound();
@@ -115,6 +124,13 @@ namespace Proyecto_v1.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            
+            // Si hay errores, recargar los productos para la vista
+            var categoryWithProducts = await _context.Categories
+                .Include(c => c.Products)
+                .FirstOrDefaultAsync(c => c.Id == id);
+            category.Products = categoryWithProducts?.Products;
+            
             return View(category);
         }
 
@@ -127,6 +143,7 @@ namespace Proyecto_v1.Controllers
             }
 
             var category = await _context.Categories
+                .Include(c => c.Products)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (category == null)
             {

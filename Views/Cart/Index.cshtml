@@ -1,4 +1,4 @@
-@model Proyecto_v1.Models.Cart
+ï»¿@model Proyecto_v1.Models.Cart
 
 @{
     ViewData["Title"] = "Carrito de Compras";
@@ -60,7 +60,7 @@
                                         <p class="product-description text-muted">@item.Product.Description</p>
                                     </div>
                                     <div class="col-md-2">
-                                        <p class="unit-price">?@item.UnitPrice.ToString("N0")</p>
+                                        <p class="unit-price">â‚¡@item.UnitPrice.ToString("N0")</p>
                                     </div>
                                     <div class="col-md-2">
                                         <div class="quantity-controls">
@@ -75,12 +75,12 @@
                                         </div>
                                     </div>
                                     <div class="col-md-1">
-                                        <p class="total-price fw-bold">?@item.TotalPrice.ToString("N0")</p>
+                                        <p class="total-price fw-bold">â‚¡@item.TotalPrice.ToString("N0")</p>
                                     </div>
                                     <div class="col-md-1">
                                         <form method="post" asp-action="RemoveItem" class="d-inline">
                                             <input type="hidden" name="cartItemId" value="@item.Id">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Estás seguro de que quieres eliminar este producto?')">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Â¿EstÃ¡s seguro de que quieres eliminar este producto?')">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
@@ -94,7 +94,7 @@
                         <div class="row">
                             <div class="col-md-8">
                                 <form method="post" asp-action="ClearCart" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-warning" onclick="return confirm('¿Estás seguro de que quieres vaciar el carrito?')">
+                                    <button type="submit" class="btn btn-outline-warning" onclick="return confirm('Â¿EstÃ¡s seguro de que quieres vaciar el carrito?')">
                                         <i class="fas fa-broom"></i> Vaciar Carrito
                                     </button>
                                 </form>
@@ -107,16 +107,16 @@
                                     <h4>Resumen del Pedido</h4>
                                     <div class="summary-line">
                                         <span>Productos (@Model.TotalItems):</span>
-                                        <span>?@Model.TotalAmount.ToString("N0")</span>
+                                        <span>â‚¡@Model.TotalAmount.ToString("N0")</span>
                                     </div>
                                     <div class="summary-line">
-                                        <span>Envío:</span>
+                                        <span>EnvÃ­o:</span>
                                         <span>Gratis</span>
                                     </div>
                                     <hr>
                                     <div class="summary-line fw-bold">
                                         <span>Total:</span>
-                                        <span>?@Model.TotalAmount.ToString("N0")</span>
+                                        <span>â‚¡@Model.TotalAmount.ToString("N0")</span>
                                     </div>
                                     <button class="btn btn-primary w-100 mt-3" onclick="proceedToCheckout()">
                                         <i class="fas fa-credit-card"></i> Proceder al Pago
@@ -132,8 +132,8 @@
                 <div class="empty-cart">
                     <div class="text-center py-5">
                         <i class="fas fa-shopping-cart empty-cart-icon"></i>
-                        <h3>Tu carrito está vacío</h3>
-                        <p class="text-muted">¡Agrega algunos productos para comenzar a comprar!</p>
+                        <h3>Tu carrito estÃ¡ vacÃ­o</h3>
+                        <p class="text-muted">Â¡Agrega algunos productos para comenzar a comprar!</p>
                         <a href="@Url.Action("ViewProducts", "Home")" class="btn btn-primary">
                             <i class="fas fa-shopping-bag"></i> Ir a Comprar
                         </a>
@@ -227,8 +227,8 @@
 <script>
 function updateQuantity(cartItemId, quantity) {
     if (quantity < 1) {
-        if (confirm('¿Quieres eliminar este producto del carrito?')) {
-            // Enviar formulario de eliminación
+        if (confirm('Â¿Quieres eliminar este producto del carrito?')) {
+            // Enviar formulario de eliminaciÃ³n
             const form = document.createElement('form');
             form.method = 'post';
             form.action = '@Url.Action("RemoveItem")';
@@ -245,7 +245,7 @@ function updateQuantity(cartItemId, quantity) {
         return;
     }
     
-    // Enviar formulario de actualización
+    // Enviar formulario de actualizaciÃ³n
     const form = document.createElement('form');
     form.method = 'post';
     form.action = '@Url.Action("UpdateQuantity")';
@@ -267,6 +267,6 @@ function updateQuantity(cartItemId, quantity) {
 }
 
 function proceedToCheckout() {
-    alert('Funcionalidad de pago en desarrollo. ¡Próximamente!');
+    alert('Funcionalidad de pago en desarrollo. Â¡PrÃ³ximamente!');
 }
 </script>

@@ -1,41 +1,355 @@
 ﻿@model IEnumerable<Proyecto_v1.Models.Category>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Gestión de Categorías";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Index</h1>
+<link rel="stylesheet" href="~/css/crud-responsive.css" asp-append-version="true" />
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsActive)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsActive)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+<div class="crud-container">
+    <!-- Header -->
+    <div class="crud-header">
+        <h1 class="crud-title">
+            <i class="fas fa-folder-open"></i>
+            Gestión de Categorías
+        </h1>
+        <div class="crud-actions">
+            <a asp-action="Create" class="crud-btn crud-btn--primary">
+                <i class="fas fa-plus"></i>
+                Crear Categoría
+            </a>
+            <a asp-controller="Home" asp-action="Index" class="crud-btn crud-btn--secondary">
+                <i class="fas fa-home"></i>
+                Volver al Inicio
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros y búsqueda -->
+    <div class="crud-filters">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="filter-label">Buscar categorías</label>
+                <input type="text" id="searchInput" class="filter-input" placeholder="Buscar por nombre..." />
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Estado</label>
+                <select id="statusFilter" class="filter-input">
+                    <option value="">Todas</option>
+                    <option value="true">Activas</option>
+                    <option value="false">Inactivas</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Estadísticas</label>
+                <div class="stats-info">
+                    <span id="total-categories">Total: @Model?.Count() ?? 0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <!-- Tabla para pantallas grandes -->
+        <div class="table-responsive-container">
+            <div class="table-responsive">
+                <table class="crud-table" id="categoriesTable">
+                    <thead>
+                        <tr>
+                            <th class="col-name">
+                                <i class="fas fa-tag"></i>
+                                @Html.DisplayNameFor(model => model.Name)
+                            </th>
+                            <th class="col-stock">
+                                <i class="fas fa-box"></i>
+                                Productos
+                            </th>
+                            <th>
+                                <i class="fas fa-toggle-on"></i>
+                                Estado
+                            </th>
+                            <th class="col-actions">
+                                <i class="fas fa-cogs"></i>
+                                Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="category-row" 
+                                data-name="@item.Name.ToLower()" 
+                                data-status="@item.IsActive.ToString().ToLower()"
+                                data-active="@item.IsActive.ToString().ToLower()">
+                                <td class="col-name">
+                                    <strong>@Html.DisplayFor(modelItem => item.Name)</strong>
+                                </td>
+                                <td class="col-stock">
+                                    @{
+                                        var productCount = item.Products?.Count ?? 0;
+                                        var stockClass = productCount > 5 ? "stock-indicator--high" : 
+                                                        productCount > 0 ? "stock-indicator--medium" : "stock-indicator--low";
+                                    }
+                                    <span class="stock-indicator @stockClass">@productCount productos</span>
+                                </td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="status-badge status-badge--active">
+                                            <i class="fas fa-check"></i> Activa
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-badge--inactive">
+                                            <i class="fas fa-times"></i> Inactiva
+                                        </span>
+                                    }
+                                </td>
+                                <td class="col-actions">
+                                    <div class="row-actions">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="row-action-btn row-action-btn--edit" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                            <span class="d-none d-md-inline">Editar</span>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="row-action-btn row-action-btn--details" title="Detalles">
+                                            <i class="fas fa-eye"></i>
+                                            <span class="d-none d-md-inline">Ver</span>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="row-action-btn row-action-btn--delete" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                            <span class="d-none d-md-inline">Eliminar</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Cards para móviles -->
+        <div class="mobile-cards" id="mobileCards">
+            @foreach (var item in Model)
+            {
+                <div class="product-card category-card" 
+                     data-name="@item.Name.ToLower()" 
+                     data-status="@item.IsActive.ToString().ToLower()"
+                     data-active="@item.IsActive.ToString().ToLower()">
+                    <div class="product-card-header">
+                        <h3 class="product-card-title">@item.Name</h3>
+                    </div>
+                    <div class="product-card-body">
+                        <div class="product-card-row">
+                            <span class="product-card-label">Productos:</span>
+                            <span class="product-card-value">
+                                @{
+                                    var productCount = item.Products?.Count ?? 0;
+                                    var stockClass = productCount > 5 ? "stock-indicator--high" : 
+                                                    productCount > 0 ? "stock-indicator--medium" : "stock-indicator--low";
+                                }
+                                <span class="stock-indicator @stockClass">@productCount</span>
+                            </span>
+                        </div>
+                        <div class="product-card-row">
+                            <span class="product-card-label">Estado:</span>
+                            <span class="product-card-value">
+                                @if (item.IsActive)
+                                {
+                                    <span class="status-badge status-badge--active">
+                                        <i class="fas fa-check"></i> Activa
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-badge--inactive">
+                                        <i class="fas fa-times"></i> Inactiva
+                                    </span>
+                                }
+                            </span>
+                        </div>
+                    </div>
+                    <div class="product-card-actions">
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="row-action-btn row-action-btn--edit">
+                            <i class="fas fa-edit"></i> Editar
+                        </a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="row-action-btn row-action-btn--details">
+                            <i class="fas fa-eye"></i> Ver
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="row-action-btn row-action-btn--delete">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="fas fa-folder-open"></i>
+            <h3>No hay categorías registradas</h3>
+            <p>Comienza creando tu primera categoría para organizar los productos.</p>
+            <a asp-action="Create" class="crud-btn crud-btn--primary">
+                <i class="fas fa-plus"></i>
+                Crear Primera Categoría
+            </a>
+        </div>
+    }
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeFilters();
+    initializeResponsiveTable();
+    updateStats();
+});
+
+function initializeFilters() {
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    
+    function filterCategories() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedStatus = statusFilter.value;
+        
+        // Filtrar tabla
+        const tableRows = document.querySelectorAll('.category-row');
+        let visibleCount = 0;
+        
+        tableRows.forEach(row => {
+            const name = row.dataset.name || '';
+            const status = row.dataset.status || '';
+            
+            const matchesSearch = name.includes(searchTerm);
+            const matchesStatus = !selectedStatus || status === selectedStatus;
+            
+            if (matchesSearch && matchesStatus) {
+                row.style.display = '';
+                row.classList.add('fade-in');
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+                row.classList.remove('fade-in');
+            }
+        });
+        
+        // Filtrar cards móviles
+        const mobileCards = document.querySelectorAll('.category-card');
+        mobileCards.forEach(card => {
+            const name = card.dataset.name || '';
+            const status = card.dataset.status || '';
+            
+            const matchesSearch = name.includes(searchTerm);
+            const matchesStatus = !selectedStatus || status === selectedStatus;
+            
+            if (matchesSearch && matchesStatus) {
+                card.style.display = '';
+                card.classList.add('fade-in');
+            } else {
+                card.style.display = 'none';
+                card.classList.remove('fade-in');
+            }
+        });
+        
+        // Actualizar contador
+        updateVisibleCount(visibleCount);
+    }
+    
+    searchInput.addEventListener('input', filterCategories);
+    statusFilter.addEventListener('change', filterCategories);
 }
-    </tbody>
-</table>
+
+function initializeResponsiveTable() {
+    const mediaQuery = window.matchMedia('(max-width: 576px)');
+    
+    function handleResponsiveChange(e) {
+        const tableContainer = document.querySelector('.table-responsive-container');
+        const mobileCards = document.querySelector('.mobile-cards');
+        
+        if (e.matches) {
+            // Modo móvil
+            if (tableContainer) tableContainer.style.display = 'none';
+            if (mobileCards) mobileCards.style.display = 'block';
+        } else {
+            // Modo escritorio
+            if (tableContainer) tableContainer.style.display = 'block';
+            if (mobileCards) mobileCards.style.display = 'none';
+        }
+    }
+    
+    // Verificar al cargar
+    handleResponsiveChange(mediaQuery);
+    
+    // Escuchar cambios
+    mediaQuery.addEventListener('change', handleResponsiveChange);
+}
+
+function updateStats() {
+    const totalCategories = document.querySelectorAll('.category-row').length;
+    const activeCategories = document.querySelectorAll('.category-row[data-active="true"]').length;
+    
+    document.getElementById('total-categories').textContent = 
+        `Total: ${totalCategories} | Activas: ${activeCategories}`;
+}
+
+function updateVisibleCount(count) {
+    const total = document.querySelectorAll('.category-row').length;
+    document.getElementById('total-categories').textContent = 
+        `Mostrando: ${count} de ${total}`;
+}
+
+// Confirmar eliminación
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.row-action-btn--delete')) {
+        if (!confirm('¿Estás seguro de que quieres eliminar esta categoría? Esto puede afectar los productos asociados.')) {
+            e.preventDefault();
+        }
+    }
+});
+</script>
+
+<style>
+/* Estilos específicos para categorías */
+.category-card {
+    border-left: 4px solid #007bff;
+}
+
+.stats-info {
+    padding: 0.5rem 1rem;
+    background: #f8f9fa;
+    border-radius: 0.375rem;
+    border: 1px solid #e9ecef;
+    font-size: 0.9rem;
+    color: #495057;
+    font-weight: 600;
+}
+
+.category-row:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+/* Ajustes para el contador de productos */
+.col-stock .stock-indicator {
+    font-size: 0.85rem;
+}
+
+.stock-indicator--high {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.stock-indicator--medium {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.stock-indicator--low {
+    background: #f8d7da;
+    color: #721c24;
+}
+</style>
