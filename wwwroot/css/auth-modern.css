@@ -1,0 +1,441 @@
+/* Estilos para páginas de autenticación inspirados en el diseño del home */
+
+:root {
+    --auth-bg: #fafafa;
+    --auth-card-bg: #ffffff;
+    --auth-primary: #111111;
+    --auth-muted: #6c6c6c;
+    --auth-border: #e9e9e9;
+    --auth-focus: #000000;
+    --auth-shadow: rgba(0, 0, 0, 0.08);
+}
+
+body {
+    font-family: 'Didot', 'Bodoni MT', 'Playfair Display', ui-serif, Georgia, serif;
+    background: var(--auth-bg);
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+/* Container principal */
+.auth-container {
+    width: 100%;
+    max-width: 900px;
+    background: var(--auth-card-bg);
+    border-radius: 0;
+    box-shadow: 0 0 0 1px var(--auth-border);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 600px;
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Panel del formulario */
+.auth-form-panel {
+    padding: 4rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-header {
+    margin-bottom: 2.5rem;
+    text-align: left;
+}
+
+.auth-logo {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--auth-primary);
+    margin-bottom: 0.5rem;
+    font-family: 'Didot', 'Bodoni MT', ui-serif, Georgia, serif;
+}
+
+.auth-title {
+    font-size: 1.75rem;
+    font-weight: 400;
+    color: var(--auth-primary);
+    margin: 1.5rem 0 0.5rem 0;
+    letter-spacing: 0.02em;
+}
+
+.auth-subtitle {
+    color: var(--auth-muted);
+    font-size: 1rem;
+    margin: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Formulario */
+.auth-form {
+    max-width: 100%;
+}
+
+.form-floating {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.form-floating .form-control {
+    width: 100%;
+    height: 3.5rem;
+    padding: 1.25rem 0.75rem 0.5rem;
+    border: 1px solid var(--auth-border);
+    border-radius: 0;
+    background: transparent;
+    font-size: 1rem;
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    transition: all 0.15s ease;
+    box-shadow: none;
+}
+
+.form-floating .form-control::placeholder {
+    color: transparent;
+}
+
+.form-floating .form-control:focus {
+    border-color: var(--auth-primary);
+    outline: none;
+    box-shadow: none;
+    background: white;
+}
+
+.form-floating label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 1.25rem 0.75rem 0.5rem;
+    pointer-events: none;
+    color: var(--auth-muted);
+    transform-origin: 0 0;
+    transition: opacity 0.1s ease-in-out, transform 0.1s ease-in-out;
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-size: 1rem;
+}
+
+.form-floating .form-control:focus ~ label,
+.form-floating .form-control:not(:placeholder-shown) ~ label {
+    opacity: 0.65;
+    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+    color: var(--auth-primary);
+}
+
+/* Checkbox */
+.checkbox {
+    margin-bottom: 1.5rem;
+}
+
+.checkbox .form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--auth-muted);
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.95rem;
+    cursor: pointer;
+    margin: 0;
+}
+
+.form-check-input {
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 1px solid var(--auth-border);
+    border-radius: 0;
+    background: transparent;
+    margin: 0;
+}
+
+.form-check-input:checked {
+    background-color: var(--auth-primary);
+    border-color: var(--auth-primary);
+}
+
+.form-check-input:focus {
+    box-shadow: none;
+    border-color: var(--auth-primary);
+}
+
+/* Botón principal */
+.auth-btn {
+    width: 100%;
+    height: 3.5rem;
+    border: 1px solid var(--auth-primary);
+    border-radius: 0;
+    background: var(--auth-primary);
+    color: white;
+    font-size: 1rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.auth-btn:hover {
+    background: transparent;
+    color: var(--auth-primary);
+}
+
+.auth-btn:focus {
+    outline: 2px solid var(--auth-focus);
+    outline-offset: 2px;
+}
+
+.auth-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Panel de información */
+.auth-info-panel {
+    background: var(--auth-primary);
+    color: white;
+    padding: 4rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+.auth-info-content {
+    max-width: 300px;
+}
+
+.auth-info-title {
+    font-size: 2rem;
+    font-weight: 400;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+}
+
+.auth-info-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.auth-info-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem 0;
+    text-align: left;
+}
+
+.auth-info-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    opacity: 0.9;
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.auth-info-features li i {
+    width: 1.25rem;
+    opacity: 0.8;
+}
+
+/* Enlaces */
+.auth-links {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.auth-link {
+    color: var(--auth-muted);
+    text-decoration: none;
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
+}
+
+.auth-link:hover {
+    color: var(--auth-primary);
+    text-decoration: underline;
+}
+
+/* Validación */
+.text-danger {
+    color: #b00020;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.validation-summary-errors {
+    background: #fef2f2;
+    border: 1px solid #f5c6cb;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    color: #b00020;
+}
+
+.validation-summary-errors ul {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+/* Imagen decorativa */
+.auth-decorative-image {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    width: 120px;
+    height: 160px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background-size: cover;
+    background-position: center;
+    opacity: 0.7;
+}
+
+/* Botón volver al inicio */
+.back-to-home {
+    position: fixed;
+    top: 2rem;
+    left: 2rem;
+    background: transparent;
+    border: 1px solid var(--auth-border);
+    color: var(--auth-muted);
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    border-radius: 0;
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 1000;
+}
+
+.back-to-home:hover {
+    background: var(--auth-primary);
+    color: white;
+    border-color: var(--auth-primary);
+    text-decoration: none;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .auth-container {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+        margin: 1rem;
+        min-height: 500px;
+    }
+
+    .auth-form-panel,
+    .auth-info-panel {
+        padding: 2.5rem 2rem;
+    }
+
+    .auth-info-panel {
+        order: 2;
+        min-height: 300px;
+    }
+
+    .auth-info-title {
+        font-size: 1.5rem;
+    }
+
+    .auth-info-features {
+        display: none;
+    }
+
+    .auth-decorative-image {
+        position: relative;
+        bottom: auto;
+        right: auto;
+        width: 80px;
+        height: 100px;
+        margin-top: 1rem;
+    }
+
+    .back-to-home {
+        top: 1rem;
+        left: 1rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-container {
+        margin: 0.5rem;
+    }
+
+    .auth-form-panel,
+    .auth-info-panel {
+        padding: 2rem 1.5rem;
+    }
+
+    .auth-logo {
+        font-size: 2rem;
+    }
+
+    .auth-title {
+        font-size: 1.5rem;
+    }
+
+    .form-floating .form-control {
+        height: 3rem;
+        font-size: 0.9rem;
+    }
+
+    .auth-btn {
+        height: 3rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Estilos específicos para registro */
+.register-container .form-floating {
+    margin-bottom: 1.25rem;
+}
+
+.register-container .form-floating .form-control {
+    height: 3.25rem;
+    font-size: 0.95rem;
+}
+
+.register-container .auth-btn {
+    margin-top: 0.75rem;
+}
+
+/* Select personalizado para registro */
+.form-floating select.form-control {
+    cursor: pointer;
+}
+
+.form-floating select.form-control option {
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}

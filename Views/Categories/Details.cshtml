@@ -1,30 +1,214 @@
 ﻿@model Proyecto_v1.Models.Category
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalles de Categoría";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Details</h1>
+<link rel="stylesheet" href="~/css/crud-responsive.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/categories-crud.css" asp-append-version="true" />
 
-<div>
-    <h4>Category</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsActive)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsActive)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="crud-container">
+    <!-- Header -->
+    <div class="crud-header">
+        <h1 class="crud-title">
+            <i class="fas fa-eye"></i>
+            Detalles de Categoría
+        </h1>
+        <div class="crud-actions">
+            <a asp-action="Index" class="crud-btn crud-btn--secondary">
+                <i class="fas fa-arrow-left"></i>
+                Volver a la Lista
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="crud-btn crud-btn--primary">
+                <i class="fas fa-edit"></i>
+                Editar
+            </a>
+        </div>
+    </div>
+
+    <div class="crud-form-container">
+        <div class="crud-form-header">
+            <h2 class="crud-form-title">@Model.Name</h2>
+            <p class="crud-form-subtitle">Información completa de la categoría seleccionada.</p>
+        </div>
+
+        <div class="details-grid">
+            <!-- Información básica -->
+            <div class="details-card">
+                <div class="details-card-header">
+                    <i class="fas fa-info-circle"></i>
+                    <h3>Información General</h3>
+                </div>
+                <div class="details-card-body">
+                    <div class="detail-row">
+                        <span class="detail-label">
+                            <i class="fas fa-tag"></i>
+                            Nombre:
+                        </span>
+                        <span class="detail-value">@Html.DisplayFor(model => model.Name)</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">
+                            <i class="fas fa-hashtag"></i>
+                            ID:
+                        </span>
+                        <span class="detail-value">#@Model.Id</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">
+                            <i class="fas fa-toggle-on"></i>
+                            Estado:
+                        </span>
+                        <span class="detail-value">
+                            @if (Model.IsActive)
+                            {
+                                <span class="status-badge status-badge--active">
+                                    <i class="fas fa-check"></i> Activa
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-badge--inactive">
+                                    <i class="fas fa-times"></i> Inactiva
+                                </span>
+                            }
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="details-card">
+                <div class="details-card-header">
+                    <i class="fas fa-chart-bar"></i>
+                    <h3>Estadísticas</h3>
+                </div>
+                <div class="details-card-body">
+                    @{
+                        var productCount = Model.Products?.Count ?? 0;
+                        var activeProducts = Model.Products?.Count(p => p.IsActive) ?? 0;
+                        var totalStock = Model.Products?.Sum(p => p.Stock) ?? 0;
+                    }
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-number">@productCount</span>
+                                <span class="stat-label">Total de Productos</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon active">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-number">@activeProducts</span>
+                                <span class="stat-label">Productos Activos</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon stock">
+                                <i class="fas fa-cubes"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-number">@totalStock</span>
+                                <span class="stat-label">Stock Total</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Productos asociados -->
+            <div class="details-card products-card" style="grid-column: 1 / -1;">
+                <div class="details-card-header">
+                    <i class="fas fa-shopping-bag"></i>
+                    <h3>Productos en esta Categoría</h3>
+                </div>
+                <div class="details-card-body">
+                    @if (Model.Products != null && Model.Products.Any())
+                    {
+                        <div class="products-grid">
+                            @foreach (var product in Model.Products.Take(6))
+                            {
+                                <div class="product-mini-card">
+                                    <div class="product-image">
+                                        @if (!string.IsNullOrEmpty(product.ImageUrl))
+                                        {
+                                            <img src="@product.ImageUrl" alt="@product.Name" />
+                                        }
+                                        else
+                                        {
+                                            <div class="product-placeholder">
+                                                <i class="fas fa-image"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="product-info">
+                                        <h4>@product.Name</h4>
+                                        <p class="product-price">₡@product.Price.ToString("N0")</p>
+                                        <div class="product-meta">
+                                            <span class="product-stock">Stock: @product.Stock</span>
+                                            @if (product.IsActive)
+                                            {
+                                                <span class="product-status active">Activo</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="product-status inactive">Inactivo</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        
+                        @if (Model.Products.Count > 6)
+                        {
+                            <div class="more-products">
+                                <p>Y @(Model.Products.Count - 6) productos más...</p>
+                                <a href="@Url.Action("Index", "Products")?category=@Model.Name" class="crud-btn crud-btn--outline">
+                                    <i class="fas fa-eye"></i>
+                                    Ver Todos los Productos
+                                </a>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="empty-products">
+                            <i class="fas fa-box-open"></i>
+                            <h4>No hay productos en esta categoría</h4>
+                            <p>Aún no se han asignado productos a esta categoría.</p>
+                            <a asp-controller="Products" asp-action="Create" class="crud-btn crud-btn--primary">
+                                <i class="fas fa-plus"></i>
+                                Crear Primer Producto
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="crud-btn crud-btn--primary">
+                <i class="fas fa-edit"></i>
+                Editar Categoría
+            </a>
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="crud-btn crud-btn--danger">
+                <i class="fas fa-trash"></i>
+                Eliminar
+            </a>
+            <a asp-action="Index" class="crud-btn crud-btn--secondary">
+                <i class="fas fa-list"></i>
+                Ver Todas las Categorías
+            </a>
+        </div>
+    </div>
 </div>
