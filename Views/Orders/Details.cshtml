@@ -1,0 +1,292 @@
+﻿@model Proyecto_v1.Models.Order
+
+@{
+    ViewData["Title"] = $"Orden #{Model.Id.ToString("D6")}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/crud-responsive.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/orders-styles.css" asp-append-version="true" />
+
+<div class="crud-container">
+    <!-- Header -->
+    <div class="crud-header">
+        <h1 class="crud-title">
+            <i class="fas fa-receipt"></i>
+            Orden #@Model.Id.ToString("D6")
+        </h1>
+        <div class="crud-actions">
+            <a asp-action="Index" class="crud-btn crud-btn--secondary">
+                <i class="fas fa-arrow-left"></i>
+                Volver a Mis Compras
+            </a>
+            <a asp-action="Invoice" asp-route-id="@Model.Id" class="crud-btn crud-btn--primary">
+                <i class="fas fa-file-invoice"></i>
+                Ver Factura
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i>
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="order-details-grid">
+        <!-- Información de la orden -->
+        <div class="details-card">
+            <div class="details-card-header">
+                <i class="fas fa-info-circle"></i>
+                <h3>Información de la Orden</h3>
+            </div>
+            <div class="details-card-body">
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-hashtag"></i>
+                        Número de Orden:
+                    </span>
+                    <span class="detail-value">#@Model.Id.ToString("D6")</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-calendar"></i>
+                        Fecha de Pedido:
+                    </span>
+                    <span class="detail-value">@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-undo"></i>
+                        Fecha Límite de Devolución:
+                    </span>
+                    <span class="detail-value">@Model.DevolutionDate.ToString("dd/MM/yyyy")</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-info-circle"></i>
+                        Estado:
+                    </span>
+                    <span class="detail-value">
+                        @{
+                            var statusClass = Model.Status.ToLower() switch
+                            {
+                                "pendiente" => "status-badge--warning",
+                                "procesando" => "status-badge--info",
+                                "enviado" => "status-badge--primary",
+                                "entregado" => "status-badge--success",
+                                "cancelada" => "status-badge--danger",
+                                _ => "status-badge--secondary"
+                            };
+                            var statusIcon = Model.Status.ToLower() switch
+                            {
+                                "pendiente" => "fas fa-clock",
+                                "procesando" => "fas fa-cog fa-spin",
+                                "enviado" => "fas fa-truck",
+                                "entregado" => "fas fa-check",
+                                "cancelada" => "fas fa-times",
+                                _ => "fas fa-question"
+                            };
+                        }
+                        <span class="status-badge @statusClass">
+                            <i class="@statusIcon"></i> @Model.Status
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información del cliente -->
+        <div class="details-card">
+            <div class="details-card-header">
+                <i class="fas fa-user"></i>
+                <h3>Información del Cliente</h3>
+            </div>
+            <div class="details-card-body">
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-user"></i>
+                        Nombre:
+                    </span>
+                    <span class="detail-value">@Model.Customer?.FirstName @Model.Customer?.LastName</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-envelope"></i>
+                        Email:
+                    </span>
+                    <span class="detail-value">@Model.Customer?.Email</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Dirección:
+                    </span>
+                    <span class="detail-value">@Model.Customer?.Address</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen financiero -->
+        <div class="details-card">
+            <div class="details-card-header">
+                <i class="fas fa-calculator"></i>
+                <h3>Resumen Financiero</h3>
+            </div>
+            <div class="details-card-body">
+                <div class="detail-row">
+                    <span class="detail-label">Subtotal:</span>
+                    <span class="detail-value">₡@Model.SubTotal.ToString("N0")</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">IVA (13%):</span>
+                    <span class="detail-value">₡@Model.IVA.ToString("N0")</span>
+                </div>
+                <div class="detail-row total-row">
+                    <span class="detail-label"><strong>Total:</strong></span>
+                    <span class="detail-value total-amount"><strong>₡@Model.Total.ToString("N0")</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Productos de la orden -->
+    <div class="details-card" style="margin-top: 2rem;">
+        <div class="details-card-header">
+            <i class="fas fa-shopping-bag"></i>
+            <h3>Productos Ordenados (@Model.OrderDetails?.Count ?? 0 productos)</h3>
+        </div>
+        <div class="details-card-body">
+            @if (Model.OrderDetails?.Any() == true)
+            {
+                <div class="order-products-table">
+                    <!-- Vista desktop -->
+                    <div class="table-responsive d-none d-md-block">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Precio Unitario</th>
+                                    <th>Cantidad</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var detail in Model.OrderDetails)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="product-image-small me-3">
+                                                    @if (!string.IsNullOrEmpty(detail.Product?.ImageUrl))
+                                                    {
+                                                        <img src="@detail.Product.ImageUrl" alt="@detail.Product.Name" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="no-image-small">
+                                                            <i class="fas fa-image"></i>
+                                                        </div>
+                                                    }
+                                                </div>
+                                                <div>
+                                                    <strong>@detail.Product?.Name</strong>
+                                                    <br>
+                                                    <small class="text-muted">Talla: @detail.Product?.Size</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>@detail.Product?.Category?.Name</td>
+                                        <td>?@detail.Price.ToString("N0")</td>
+                                        <td>
+                                            <span class="quantity-badge">@detail.Quantity</span>
+                                        </td>
+                                        <td class="fw-bold">?@detail.SubTotal.ToString("N0")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Vista móvil -->
+                    <div class="d-md-none">
+                        @foreach (var detail in Model.OrderDetails)
+                        {
+                            <div class="product-detail-card">
+                                <div class="d-flex align-items-start">
+                                    <div class="product-image-small me-3">
+                                        @if (!string.IsNullOrEmpty(detail.Product?.ImageUrl))
+                                        {
+                                            <img src="@detail.Product.ImageUrl" alt="@detail.Product.Name" />
+                                        }
+                                        else
+                                        {
+                                            <div class="no-image-small">
+                                                <i class="fas fa-image"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1">@detail.Product?.Name</h6>
+                                        <p class="text-muted mb-1">@detail.Product?.Category?.Name</p>
+                                        <p class="text-muted mb-2">Talla: @detail.Product?.Size</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>?@detail.Price.ToString("N0") × @detail.Quantity</span>
+                                            <strong>?@detail.SubTotal.ToString("N0")</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted text-center py-4">No hay productos en esta orden.</p>
+            }
+        </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="form-actions" style="margin-top: 2rem;">
+        <a asp-action="Invoice" asp-route-id="@Model.Id" class="crud-btn crud-btn--primary">
+            <i class="fas fa-file-invoice"></i>
+            Descargar Factura
+        </a>
+        
+        @if (Model.Status == "Pendiente")
+        {
+            <form method="post" asp-action="CancelOrder" asp-route-id="@Model.Id" class="d-inline">
+                <button type="submit" class="crud-btn crud-btn--danger" 
+                        onclick="return confirm('¿Estás seguro de que quieres cancelar esta orden?')">
+                    <i class="fas fa-ban"></i>
+                    Cancelar Orden
+                </button>
+            </form>
+        }
+        
+        <a asp-controller="Home" asp-action="ViewProducts" class="crud-btn crud-btn--outline">
+            <i class="fas fa-shopping-cart"></i>
+            Comprar de Nuevo
+        </a>
+        
+        <a asp-action="Index" class="crud-btn crud-btn--secondary">
+            <i class="fas fa-list"></i>
+            Ver Todas Mis Compras
+        </a>
+    </div>
+</div>

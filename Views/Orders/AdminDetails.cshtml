@@ -1,0 +1,430 @@
+﻿@model Proyecto_v1.Models.Order
+
+@{
+    ViewData["Title"] = $"Detalles de Orden #{Model.Id.ToString("D6")} - Administrador";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/crud-responsive.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/orders-styles.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/admin-orders.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/admin-details.css" asp-append-version="true" />
+
+<div class="crud-container">
+    <!-- Header Administrativo -->
+    <div class="crud-header">
+        <div class="order-header-admin">
+            <div class="order-title-section">
+                <h1 class="crud-title">
+                    <i class="fas fa-file-alt"></i>
+                    Orden #@Model.Id.ToString("D6")
+                    <span class="admin-badge">Vista Administrativa</span>
+                </h1>
+                <div class="order-meta-admin">
+                    <span class="meta-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        Creada: @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                    </span>
+                    <span class="meta-item">
+                        <i class="fas fa-user"></i>
+                        Cliente: @Model.Customer?.FirstName @Model.Customer?.LastName
+                    </span>
+                    <span class="meta-item">
+                        <i class="fas fa-envelope"></i>
+                        @Model.Customer?.Email
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="crud-actions">
+            <a asp-action="AdminInvoice" asp-route-id="@Model.Id" class="crud-btn crud-btn--primary">
+                <i class="fas fa-file-invoice"></i>
+                Ver Factura
+            </a>
+            <button class="crud-btn crud-btn--outline" onclick="sendEmailToCustomer('@Model.Customer?.Email', '@Model.Id.ToString("D6")')">
+                <i class="fas fa-envelope"></i>
+                Contactar Cliente
+            </button>
+            <a asp-action="AdminOrders" class="crud-btn crud-btn--secondary">
+                <i class="fas fa-arrow-left"></i>
+                Volver al Panel
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i>
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Panel de Información Principal -->
+    <div class="admin-detail-panels">
+        <!-- Panel de Estado y Control -->
+        <div class="admin-panel admin-panel--status">
+            <div class="panel-header">
+                <h3><i class="fas fa-tasks"></i> Control de Estado</h3>
+            </div>
+            <div class="panel-content">
+                <div class="current-status">
+                    @{
+                        var statusClass = Model.Status.ToLower() switch
+                        {
+                            "pendiente" => "status-badge--warning",
+                            "procesando" => "status-badge--info",
+                            "enviado" => "status-badge--primary",
+                            "entregado" => "status-badge--success",
+                            "cancelada" => "status-badge--danger",
+                            _ => "status-badge--secondary"
+                        };
+                        var statusIcon = Model.Status.ToLower() switch
+                        {
+                            "pendiente" => "fas fa-clock",
+                            "procesando" => "fas fa-cog",
+                            "enviado" => "fas fa-truck",
+                            "entregado" => "fas fa-check",
+                            "cancelada" => "fas fa-times",
+                            _ => "fas fa-question"
+                        };
+                    }
+                    
+                    <div class="status-display">
+                        <span class="current-status-label">Estado Actual:</span>
+                        <span class="status-badge status-badge--large @statusClass">
+                            <i class="@statusIcon"></i>
+                            @Model.Status
+                        </span>
+                    </div>
+                </div>
+                
+                <form method="post" asp-action="UpdateOrderStatus" class="status-update-form">
+                    <input type="hidden" name="orderId" value="@Model.Id">
+                    <div class="form-group">
+                        <label for="newStatus" class="form-label">Cambiar Estado:</label>
+                        <select name="newStatus" id="newStatus" class="form-control status-select-admin">
+                            <option value="Pendiente" selected="@(Model.Status == "Pendiente")">Pendiente</option>
+                            <option value="Procesando" selected="@(Model.Status == "Procesando")">Procesando</option>
+                            <option value="Enviado" selected="@(Model.Status == "Enviado")">Enviado</option>
+                            <option value="Entregado" selected="@(Model.Status == "Entregado")">Entregado</option>
+                            <option value="Cancelada" selected="@(Model.Status == "Cancelada")">Cancelada</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="crud-btn crud-btn--primary w-100">
+                        <i class="fas fa-save"></i>
+                        Actualizar Estado
+                    </button>
+                </form>
+                
+                @if (Model.Status == "Cancelada")
+                {
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Orden Cancelada:</strong> El stock de los productos ha sido restaurado automáticamente.
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Panel de Información del Cliente -->
+        <div class="admin-panel admin-panel--customer">
+            <div class="panel-header">
+                <h3><i class="fas fa-user-circle"></i> Información del Cliente</h3>
+            </div>
+            <div class="panel-content">
+                <div class="customer-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Nombre Completo:</span>
+                        <span class="detail-value">@Model.Customer?.FirstName @Model.Customer?.LastName</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Email:</span>
+                        <span class="detail-value">
+                            <a href="mailto:@Model.Customer?.Email" class="email-link">
+                                <i class="fas fa-envelope"></i>
+                                @Model.Customer?.Email
+                            </a>
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Dirección de Entrega:</span>
+                        <span class="detail-value address-value">@Model.Customer?.Address</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Estado del Cliente:</span>
+                        <span class="detail-value">
+                            @if (Model.Customer?.IsActive == true)
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Inactivo</span>
+                            }
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="customer-actions mt-3">
+                    <button class="crud-btn crud-btn--outline crud-btn--small" onclick="sendEmailToCustomer('@Model.Customer?.Email', '@Model.Id.ToString("D6")')">
+                        <i class="fas fa-envelope"></i>
+                        Enviar Email
+                    </button>
+                    <button class="crud-btn crud-btn--outline crud-btn--small" onclick="viewCustomerHistory('@Model.Customer?.Id')">
+                        <i class="fas fa-history"></i>
+                        Ver Historial
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Resumen Financiero -->
+        <div class="admin-panel admin-panel--financial">
+            <div class="panel-header">
+                <h3><i class="fas fa-calculator"></i> Resumen Financiero</h3>
+            </div>
+            <div class="panel-content">
+                <div class="financial-details">
+                    <div class="financial-row">
+                        <span class="financial-label">Subtotal:</span>
+                        <span class="financial-value">₡@Model.SubTotal.ToString("N0")</span>
+                    </div>
+                    <div class="financial-row">
+                        <span class="financial-label">IVA (13%):</span>
+                        <span class="financial-value">₡@Model.IVA.ToString("N0")</span>
+                    </div>
+                    <div class="financial-row">
+                        <span class="financial-label">Envío:</span>
+                        <span class="financial-value free-shipping">Gratis</span>
+                    </div>
+                    <div class="financial-row financial-row--total">
+                        <span class="financial-label">Total:</span>
+                        <span class="financial-value">₡@Model.Total.ToString("N0")</span>
+                    </div>
+                </div>
+                
+                <div class="financial-meta">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i>
+                        Fecha límite para devolución: @Model.DevolutionDate.ToString("dd/MM/yyyy")
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detalles de Productos -->
+    <div class="admin-panel admin-panel--products">
+        <div class="panel-header">
+            <h3>
+                <i class="fas fa-boxes"></i> 
+                Productos Ordenados 
+                <span class="item-count">(@Model.OrderDetails?.Count items)</span>
+            </h3>
+        </div>
+        <div class="panel-content">
+            @if (Model.OrderDetails?.Any() == true)
+            {
+                <div class="products-table-container">
+                    <table class="products-admin-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Categoría</th>
+                                <th>Precio Unit.</th>
+                                <th>Cantidad</th>
+                                <th>Subtotal</th>
+                                <th>Stock Actual</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var detail in Model.OrderDetails)
+                            {
+                                <tr class="product-admin-row">
+                                    <td>
+                                        <div class="product-info">
+                                            <div class="product-image-small">
+                                                @if (!string.IsNullOrEmpty(detail.Product?.ImageUrl))
+                                                {
+                                                    <img src="@detail.Product.ImageUrl" alt="@detail.Product?.Name" class="img-thumbnail">
+                                                }
+                                                else
+                                                {
+                                                    <div class="no-image-small">
+                                                        <i class="fas fa-image"></i>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div class="product-details">
+                                                <strong class="product-name">@detail.Product?.Name</strong>
+                                                <small class="product-description">@detail.Product?.Description</small>
+                                                @if (!string.IsNullOrEmpty(detail.Product?.Size))
+                                                {
+                                                    <small class="product-size">Talla: @detail.Product.Size</small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="category-badge">@detail.Product?.Category?.Name</span>
+                                    </td>
+                                    <td>
+                                        <span class="price-value">₡@detail.Price.ToString("N0")</span>
+                                    </td>
+                                    <td>
+                                        <span class="quantity-badge">@detail.Quantity</span>
+                                    </td>
+                                    <td>
+                                        <strong class="subtotal-value">₡@detail.SubTotal.ToString("N0")</strong>
+                                    </td>
+                                    <td>
+                                        @{
+                                            var stockClass = detail.Product?.Stock <= 5 ? "stock-low" : 
+                                                           detail.Product?.Stock <= 20 ? "stock-medium" : "stock-high";
+                                        }
+                                        <span class="stock-indicator @stockClass">
+                                            @detail.Product?.Stock unidades
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="product-actions">
+                                            <a href="@Url.Action("Details", "Products", new { id = detail.ProductId })" 
+                                               class="action-btn action-btn--small action-btn--view" title="Ver producto">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="@Url.Action("Edit", "Products", new { id = detail.ProductId })" 
+                                               class="action-btn action-btn--small action-btn--edit" title="Editar producto">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="empty-products">
+                    <i class="fas fa-box-open"></i>
+                    <p>No hay productos en esta orden.</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Timeline de la Orden (Histórico) -->
+    <div class="admin-panel admin-panel--timeline">
+        <div class="panel-header">
+            <h3><i class="fas fa-history"></i> Historial de la Orden</h3>
+        </div>
+        <div class="panel-content">
+            <div class="order-timeline">
+                <div class="timeline-item timeline-item--completed">
+                    <div class="timeline-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h4>Orden Creada</h4>
+                        <p>@Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+                        <small>Cliente realizó el pedido desde el carrito de compras</small>
+                    </div>
+                </div>
+                
+                @if (Model.Status != "Pendiente")
+                {
+                    <div class="timeline-item timeline-item--completed">
+                        <div class="timeline-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>En Procesamiento</h4>
+                            <p>Estado actualizado por administrador</p>
+                        </div>
+                    </div>
+                }
+                
+                @if (Model.Status == "Enviado" || Model.Status == "Entregado")
+                {
+                    <div class="timeline-item timeline-item--completed">
+                        <div class="timeline-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>Enviado</h4>
+                            <p>Producto en camino al cliente</p>
+                        </div>
+                    </div>
+                }
+                
+                @if (Model.Status == "Entregado")
+                {
+                    <div class="timeline-item timeline-item--completed">
+                        <div class="timeline-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>Entregado</h4>
+                            <p>Orden completada exitosamente</p>
+                        </div>
+                    </div>
+                }
+                
+                @if (Model.Status == "Cancelada")
+                {
+                    <div class="timeline-item timeline-item--cancelled">
+                        <div class="timeline-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <h4>Cancelada</h4>
+                            <p>Orden cancelada - Stock restaurado</p>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function sendEmailToCustomer(email, orderNumber) {
+    if (email) {
+        const subject = `Actualización de tu orden ${orderNumber} - KADYC`;
+        const body = `Estimado cliente,\n\nTe escribimos para informarte sobre el estado de tu orden ${orderNumber}.\n\nSaludos,\nEquipo KADYC`;
+        window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    } else {
+        alert('Email del cliente no disponible.');
+    }
+}
+
+function viewCustomerHistory(customerId) {
+    alert('Función de historial del cliente en desarrollo.');
+}
+
+// Actualizar estado de la orden con confirmación
+document.querySelector('.status-update-form')?.addEventListener('submit', function(e) {
+    const newStatus = document.getElementById('newStatus').value;
+    const currentStatus = '@Model.Status';
+    
+    if (newStatus === 'Cancelada' && currentStatus !== 'Cancelada') {
+        if (!confirm('¿Estás seguro de que quieres cancelar esta orden? Se restaurará el stock de los productos.')) {
+            e.preventDefault();
+        }
+    }
+});
+</script>

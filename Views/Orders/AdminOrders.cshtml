@@ -1,0 +1,561 @@
+﻿@model IEnumerable<Proyecto_v1.Models.Order>
+
+@{
+    ViewData["Title"] = "Gestión de Órdenes - Administrador";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/crud-responsive.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/orders-styles.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/admin-orders.css" asp-append-version="true" />
+
+<div class="crud-container">
+    <!-- Header -->
+    <div class="crud-header">
+        <h1 class="crud-title">
+            <i class="fas fa-chart-line"></i>
+            Panel de Órdenes - Administrador
+        </h1>
+        <div class="crud-actions">
+            <button class="crud-btn crud-btn--outline" onclick="exportOrders()">
+                <i class="fas fa-download"></i>
+                Exportar Datos
+            </button>
+            <button class="crud-btn crud-btn--secondary" onclick="refreshDashboard()">
+                <i class="fas fa-sync-alt"></i>
+                Actualizar
+            </button>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i>
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Dashboard de Estadísticas -->
+    <div class="admin-dashboard">
+        <div class="dashboard-stats">
+            <div class="stat-card stat-card--primary">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@ViewBag.TotalOrders</h3>
+                    <p>Órdenes Totales</p>
+                </div>
+            </div>
+            
+            <div class="stat-card stat-card--warning">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@ViewBag.PendingOrders</h3>
+                    <p>Pendientes</p>
+                </div>
+            </div>
+            
+            <div class="stat-card stat-card--info">
+                <div class="stat-icon">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@ViewBag.ProcessingOrders</h3>
+                    <p>Procesando</p>
+                </div>
+            </div>
+            
+            <div class="stat-card stat-card--success">
+                <div class="stat-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>@ViewBag.DeliveredOrders</h3>
+                    <p>Entregadas</p>
+                </div>
+            </div>
+            
+            <div class="stat-card stat-card--revenue">
+                <div class="stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>₡@ViewBag.TotalRevenue?.ToString("N0")</h3>
+                    <p>Ingresos Totales</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros Avanzados -->
+    <div class="admin-filters">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="filter-label">Estado</label>
+                <select id="statusFilter" class="filter-input">
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="procesando">Procesando</option>
+                    <option value="enviado">Enviado</option>
+                    <option value="entregado">Entregado</option>
+                    <option value="cancelada">Cancelada</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Cliente</label>
+                <input type="text" id="customerFilter" class="filter-input" placeholder="Buscar por cliente...">
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Período</label>
+                <select id="periodFilter" class="filter-input">
+                    <option value="">Todas las fechas</option>
+                    <option value="today">Hoy</option>
+                    <option value="week">Esta semana</option>
+                    <option value="month">Este mes</option>
+                    <option value="quarter">Últimos 3 meses</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Monto</label>
+                <select id="amountFilter" class="filter-input">
+                    <option value="">Todos los montos</option>
+                    <option value="low">Menos de ₡50,000</option>
+                    <option value="medium">₡50,000 - ₡200,000</option>
+                    <option value="high">Más de ₡200,000</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <button class="filter-btn filter-btn--clear" onclick="clearFilters()">
+                    <i class="fas fa-times"></i>
+                    Limpiar
+                </button>
+            </div>
+        </div>
+        <div class="filter-summary">
+            <span id="results-summary">Mostrando: @Model?.Count() orden(es)</span>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <!-- Tabla principal -->
+        <div class="admin-orders-table">
+            <div class="table-responsive">
+                <table class="crud-table" id="ordersTable">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAll" class="form-check-input">
+                            </th>
+                            <th>
+                                <i class="fas fa-hashtag"></i>
+                                Orden #
+                            </th>
+                            <th>
+                                <i class="fas fa-user"></i>
+                                Cliente
+                            </th>
+                            <th>
+                                <i class="fas fa-calendar"></i>
+                                Fecha
+                            </th>
+                            <th>
+                                <i class="fas fa-box"></i>
+                                Productos
+                            </th>
+                            <th>
+                                <i class="fas fa-dollar-sign"></i>
+                                Total
+                            </th>
+                            <th>
+                                <i class="fas fa-info-circle"></i>
+                                Estado
+                            </th>
+                            <th class="col-actions">
+                                <i class="fas fa-cogs"></i>
+                                Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model)
+                        {
+                            <tr class="admin-order-row" 
+                                data-status="@order.Status.ToLower()" 
+                                data-customer="@order.Customer?.FirstName @order.Customer?.LastName"
+                                data-customer-email="@order.Customer?.Email"
+                                data-date="@order.OrderDate.ToString("yyyy-MM-dd")"
+                                data-amount="@order.Total">
+                                <td>
+                                    <input type="checkbox" class="form-check-input order-checkbox" value="@order.Id">
+                                </td>
+                                <td>
+                                    <strong class="order-number">#@order.Id.ToString("D6")</strong>
+                                </td>
+                                <td>
+                                    <div class="customer-info">
+                                        <strong>@order.Customer?.FirstName @order.Customer?.LastName</strong>
+                                        <small class="d-block text-muted">@order.Customer?.Email</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="order-date">
+                                        @order.OrderDate.ToString("dd/MM/yyyy")
+                                        <small class="d-block text-muted">@order.OrderDate.ToString("HH:mm")</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="products-info">
+                                        <span class="product-count">@order.OrderDetails?.Count items</span>
+                                        @if (order.OrderDetails?.Any() == true)
+                                        {
+                                            <small class="d-block text-muted">
+                                                @string.Join(", ", order.OrderDetails.Take(2).Select(od => od.Product?.Name))
+                                                @if (order.OrderDetails.Count > 2)
+                                                {
+                                                    <span>...</span>
+                                                }
+                                            </small>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="amount-info">
+                                        <strong class="order-total">₡@order.Total.ToString("N0")</strong>
+                                        <small class="d-block text-muted">IVA incluido</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="status-management">
+                                        @{
+                                            var statusClass = order.Status.ToLower() switch
+                                            {
+                                                "pendiente" => "status-badge--warning",
+                                                "procesando" => "status-badge--info",
+                                                "enviado" => "status-badge--primary",
+                                                "entregado" => "status-badge--success",
+                                                "cancelada" => "status-badge--danger",
+                                                _ => "status-badge--secondary"
+                                            };
+                                            var statusIcon = order.Status.ToLower() switch
+                                            {
+                                                "pendiente" => "fas fa-clock",
+                                                "procesando" => "fas fa-cog",
+                                                "enviado" => "fas fa-truck",
+                                                "entregado" => "fas fa-check",
+                                                "cancelada" => "fas fa-times",
+                                                _ => "fas fa-question"
+                                            };
+                                        }
+                                        
+                                        <form method="post" asp-action="UpdateOrderStatus" class="status-form d-inline">
+                                            <input type="hidden" name="orderId" value="@order.Id">
+                                            <select name="newStatus" class="status-select" onchange="this.form.submit()" data-current="@order.Status">
+                                                <option value="Pendiente" selected="@(order.Status == "Pendiente")">Pendiente</option>
+                                                <option value="Procesando" selected="@(order.Status == "Procesando")">Procesando</option>
+                                                <option value="Enviado" selected="@(order.Status == "Enviado")">Enviado</option>
+                                                <option value="Entregado" selected="@(order.Status == "Entregado")">Entregado</option>
+                                                <option value="Cancelada" selected="@(order.Status == "Cancelada")">Cancelada</option>
+                                            </select>
+                                        </form>
+                                        
+                                        <span class="status-badge @statusClass mt-1">
+                                            <i class="@statusIcon"></i>
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="col-actions">
+                                    <div class="admin-actions">
+                                        <a asp-action="AdminDetails" asp-route-id="@order.Id" class="action-btn action-btn--view" title="Ver detalles administrativos">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a asp-action="AdminInvoice" asp-route-id="@order.Id" class="action-btn action-btn--invoice" title="Ver factura administrativa">
+                                            <i class="fas fa-file-invoice"></i>
+                                        </a>
+                                        <button class="action-btn action-btn--email" title="Enviar email al cliente" 
+                                                onclick="sendEmailToCustomer('@order.Customer?.Email', '@order.Id.ToString("D6")')">
+                                            <i class="fas fa-envelope"></i>
+                                        </button>
+                                        <button class="action-btn action-btn--delete" title="Eliminar orden" 
+                                                onclick="deleteOrder(@order.Id)"
+                                                @(order.Status != "Cancelada" ? "disabled" : "")>
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Acciones en lote -->
+        <div class="bulk-actions" id="bulkActions" style="display: none;">
+            <div class="bulk-actions-bar">
+                <span id="selectedCount">0 órdenes seleccionadas</span>
+                <div class="bulk-buttons">
+                    <button class="bulk-btn bulk-btn--status" onclick="bulkUpdateStatus()">
+                        <i class="fas fa-edit"></i>
+                        Cambiar Estado
+                    </button>
+                    <button class="bulk-btn bulk-btn--export" onclick="exportSelected()">
+                        <i class="fas fa-download"></i>
+                        Exportar Seleccionadas
+                    </button>
+                    <button class="bulk-btn bulk-btn--email" onclick="bulkEmail()">
+                        <i class="fas fa-envelope"></i>
+                        Enviar Emails
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <h3>No hay órdenes registradas</h3>
+            <p>Cuando los clientes realicen compras, aparecerán aquí para su gestión.</p>
+        </div>
+    }
+</div>
+
+<!-- Modal para cambio de estado en lote -->
+<div class="modal fade" id="bulkStatusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cambiar Estado de Órdenes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Selecciona el nuevo estado para las órdenes seleccionadas:</p>
+                <select class="form-control" id="bulkNewStatus">
+                    <option value="Pendiente">?? Pendiente</option>
+                    <option value="Procesando">?? Procesando</option>
+                    <option value="Enviado">?? Enviado</option>
+                    <option value="Entregado">? Entregado</option>
+                    <option value="Cancelada">? Cancelada</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="applyBulkStatus()">Aplicar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeFilters();
+    initializeCheckboxes();
+    updateStatusSelects();
+});
+
+function initializeFilters() {
+    const statusFilter = document.getElementById('statusFilter');
+    const customerFilter = document.getElementById('customerFilter');
+    const periodFilter = document.getElementById('periodFilter');
+    const amountFilter = document.getElementById('amountFilter');
+    
+    function filterOrders() {
+        const selectedStatus = statusFilter.value.toLowerCase();
+        const customerText = customerFilter.value.toLowerCase();
+        const selectedPeriod = periodFilter.value;
+        const selectedAmount = amountFilter.value;
+        
+        const rows = document.querySelectorAll('.admin-order-row');
+        let visibleCount = 0;
+        
+        rows.forEach(row => {
+            const status = row.dataset.status || '';
+            const customer = row.dataset.customer?.toLowerCase() || '';
+            const email = row.dataset.customerEmail?.toLowerCase() || '';
+            const orderDate = new Date(row.dataset.date);
+            const amount = parseFloat(row.dataset.amount) || 0;
+            
+            // Filtros
+            let matchesStatus = !selectedStatus || status === selectedStatus;
+            let matchesCustomer = !customerText || customer.includes(customerText) || email.includes(customerText);
+            let matchesPeriod = true;
+            let matchesAmount = true;
+            
+            // Filtro de período
+            if (selectedPeriod) {
+                const now = new Date();
+                const daysDiff = (now - orderDate) / (1000 * 60 * 60 * 24);
+                
+                switch (selectedPeriod) {
+                    case 'today':
+                        matchesPeriod = daysDiff < 1;
+                        break;
+                    case 'week':
+                        matchesPeriod = daysDiff <= 7;
+                        break;
+                    case 'month':
+                        matchesPeriod = daysDiff <= 30;
+                        break;
+                    case 'quarter':
+                        matchesPeriod = daysDiff <= 90;
+                        break;
+                }
+            }
+            
+            // Filtro de monto
+            if (selectedAmount) {
+                switch (selectedAmount) {
+                    case 'low':
+                        matchesAmount = amount < 50000;
+                        break;
+                    case 'medium':
+                        matchesAmount = amount >= 50000 && amount <= 200000;
+                        break;
+                    case 'high':
+                        matchesAmount = amount > 200000;
+                        break;
+                }
+            }
+            
+            if (matchesStatus && matchesCustomer && matchesPeriod && matchesAmount) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        document.getElementById('results-summary').textContent = `Mostrando ${visibleCount} órdenes`;
+    }
+    
+    statusFilter.addEventListener('change', filterOrders);
+    customerFilter.addEventListener('input', filterOrders);
+    periodFilter.addEventListener('change', filterOrders);
+    amountFilter.addEventListener('change', filterOrders);
+}
+
+function initializeCheckboxes() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.order-checkbox');
+    const bulkActions = document.getElementById('bulkActions');
+    const selectedCount = document.getElementById('selectedCount');
+    
+    selectAll?.addEventListener('change', function() {
+        const isChecked = this.checked;
+        checkboxes.forEach(cb => {
+            if (cb.closest('tr').style.display !== 'none') {
+                cb.checked = isChecked;
+            }
+        });
+        updateBulkActions();
+    });
+    
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateBulkActions);
+    });
+    
+    function updateBulkActions() {
+        const selected = Array.from(checkboxes).filter(cb => cb.checked && cb.closest('tr').style.display !== 'none');
+        const count = selected.length;
+        
+        if (count > 0) {
+            bulkActions.style.display = 'block';
+            selectedCount.textContent = `${count} órdenes seleccionadas`;
+        } else {
+            bulkActions.style.display = 'none';
+        }
+    }
+}
+
+function updateStatusSelects() {
+    document.querySelectorAll('.status-select').forEach(select => {
+        const currentStatus = select.dataset.current;
+        select.value = currentStatus;
+        
+        // Aplicar color según el estado
+        select.className = `status-select status-select--${currentStatus?.toLowerCase()}`;
+    });
+}
+
+function clearFilters() {
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('customerFilter').value = '';
+    document.getElementById('periodFilter').value = '';
+    document.getElementById('amountFilter').value = '';
+    
+    // Trigger filter update
+    document.getElementById('statusFilter').dispatchEvent(new Event('change'));
+}
+
+function refreshDashboard() {
+    location.reload();
+}
+
+function exportOrders() {
+    alert('Función de exportación en desarrollo. Se exportarían todas las órdenes visibles.');
+}
+
+function sendEmailToCustomer(email, orderNumber) {
+    if (email) {
+        const subject = `Actualización de tu orden ${orderNumber} - KADYC`;
+        const body = `Estimado cliente,\n\nTe escribimos para informarte sobre el estado de tu orden ${orderNumber}.\n\nSaludos,\nEquipo KADYC`;
+        window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    } else {
+        alert('Email del cliente no disponible.');
+    }
+}
+
+function deleteOrder(orderId) {
+    if (confirm('¿Estás seguro de que quieres eliminar esta orden? Esta acción no se puede deshacer.')) {
+        // Aquí iría la lógica para eliminar la orden
+        alert('Función de eliminación en desarrollo.');
+    }
+}
+
+function bulkUpdateStatus() {
+    const selected = Array.from(document.querySelectorAll('.order-checkbox:checked'));
+    if (selected.length === 0) {
+        alert('Selecciona al menos una orden.');
+        return;
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('bulkStatusModal'));
+    modal.show();
+}
+
+function applyBulkStatus() {
+    const newStatus = document.getElementById('bulkNewStatus').value;
+    const selected = Array.from(document.querySelectorAll('.order-checkbox:checked'));
+    
+    // Aquí iría la lógica para actualizar múltiples órdenes
+    alert(`Se cambiaría el estado de ${selected.length} órdenes a "${newStatus}".`);
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('bulkStatusModal'));
+    modal.hide();
+}
+
+function exportSelected() {
+    const selected = Array.from(document.querySelectorAll('.order-checkbox:checked'));
+    alert(`Se exportarían ${selected.length} órdenes seleccionadas.`);
+}
+
+function bulkEmail() {
+    const selected = Array.from(document.querySelectorAll('.order-checkbox:checked'));
+    alert(`Se enviarían emails a ${selected.length} clientes.`);
+}
+</script>

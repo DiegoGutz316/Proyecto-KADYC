@@ -1,0 +1,240 @@
+/* Estilos para la factura */
+.invoice-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    background: white;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.invoice-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+}
+
+.company-name {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: 0.1em;
+    font-family: 'Didot', 'Bodoni MT', ui-serif, Georgia, serif;
+}
+
+.company-tagline {
+    font-size: 1.2rem;
+    margin: 0 0 1rem 0;
+    opacity: 0.9;
+    font-style: italic;
+}
+
+.company-details p {
+    margin: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.company-details i {
+    width: 1.2rem;
+}
+
+.invoice-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+}
+
+.invoice-details p {
+    margin: 0.5rem 0;
+    font-size: 1.1rem;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-pendiente {
+    background: #ffc107;
+    color: #856404;
+}
+
+.status-procesando {
+    background: #17a2b8;
+    color: white;
+}
+
+.status-enviado {
+    background: #007bff;
+    color: white;
+}
+
+.status-entregado {
+    background: #28a745;
+    color: white;
+}
+
+.status-cancelada {
+    background: #dc3545;
+    color: white;
+}
+
+.invoice-body {
+    padding: 2rem;
+}
+
+.bill-to h4,
+.order-summary h4 {
+    color: #495057;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.customer-info p,
+.summary-details p {
+    margin: 0.5rem 0;
+    line-height: 1.6;
+}
+
+.products-table {
+    margin: 2rem 0;
+}
+
+.products-table .table {
+    border: 2px solid #dee2e6;
+}
+
+.products-table th {
+    background: #343a40 !important;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.products-table td {
+    vertical-align: middle;
+    padding: 1rem;
+}
+
+.totals-section {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+}
+
+.totals-section .table-dark td {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.invoice-footer {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #e9ecef;
+}
+
+.payment-info h5,
+.return-policy h5 {
+    color: #495057;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.thank-you {
+    margin-top: 2rem;
+}
+
+.thank-you p {
+    font-size: 1.1rem;
+}
+
+.invoice-actions {
+    padding: 2rem;
+    background: #f8f9fa;
+    text-align: center;
+    border-top: 1px solid #dee2e6;
+}
+
+.invoice-actions .btn {
+    margin: 0.5rem;
+    min-width: 160px;
+}
+
+/* Estilos para impresión */
+@media print {
+    .invoice-actions {
+        display: none;
+    }
+    
+    .invoice-container {
+        box-shadow: none;
+        border-radius: 0;
+        margin: 0;
+        max-width: none;
+    }
+    
+    .invoice-header {
+        background: #667eea !important;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+    
+    .table-dark {
+        background: #343a40 !important;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+    
+    .table-dark td,
+    .table-dark th {
+        color: white !important;
+    }
+    
+    .status-badge {
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .invoice-container {
+        margin: 1rem;
+        border-radius: 0;
+    }
+    
+    .invoice-header {
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .company-name {
+        font-size: 2rem;
+    }
+    
+    .invoice-title {
+        font-size: 2rem;
+    }
+    
+    .invoice-body {
+        padding: 1.5rem;
+    }
+    
+    .products-table {
+        overflow-x: auto;
+    }
+    
+    .invoice-actions .btn {
+        display: block;
+        margin: 0.5rem auto;
+        max-width: 250px;
+    }
+}

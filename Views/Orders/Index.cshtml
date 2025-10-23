@@ -1,0 +1,377 @@
+﻿@model IEnumerable<Proyecto_v1.Models.Order>
+
+@{
+    ViewData["Title"] = "Mis Compras";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/crud-responsive.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/orders-styles.css" asp-append-version="true" />
+
+<div class="crud-container">
+    <!-- Header -->
+    <div class="crud-header">
+        <h1 class="crud-title">
+            <i class="fas fa-shopping-bag"></i>
+            Mis Compras
+        </h1>
+        <div class="crud-actions">
+            <a asp-controller="Home" asp-action="ViewProducts" class="crud-btn crud-btn--primary">
+                <i class="fas fa-shopping-cart"></i>
+                Seguir Comprando
+            </a>
+            <a asp-controller="Cart" asp-action="Index" class="crud-btn crud-btn--outline">
+                <i class="fas fa-shopping-cart"></i>
+                Ver Carrito
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle"></i>
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Filtros -->
+    <div class="crud-filters">
+        <div class="filter-row">
+            <div class="filter-group">
+                <label class="filter-label">Estado de la orden</label>
+                <select id="statusFilter" class="filter-input">
+                    <option value="">Todas</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Procesando">Procesando</option>
+                    <option value="Enviado">Enviado</option>
+                    <option value="Entregado">Entregado</option>
+                    <option value="Cancelada">Cancelada</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Período</label>
+                <select id="periodFilter" class="filter-input">
+                    <option value="">Todas</option>
+                    <option value="week">Última semana</option>
+                    <option value="month">Último mes</option>
+                    <option value="quarter">Últimos 3 meses</option>
+                    <option value="year">Último año</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Estadísticas</label>
+                <div class="stats-info">
+                    <span id="order-stats">Total: @Model?.Count() ?? 0 órdenes</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <!-- Tabla para pantallas grandes -->
+        <div class="table-responsive-container">
+            <div class="table-responsive">
+                <table class="crud-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <i class="fas fa-hashtag"></i>
+                                Orden #
+                            </th>
+                            <th>
+                                <i class="fas fa-calendar"></i>
+                                Fecha
+                            </th>
+                            <th>
+                                <i class="fas fa-box"></i>
+                                Productos
+                            </th>
+                            <th>
+                                <i class="fas fa-dollar-sign"></i>
+                                Total
+                            </th>
+                            <th>
+                                <i class="fas fa-info-circle"></i>
+                                Estado
+                            </th>
+                            <th class="col-actions">
+                                <i class="fas fa-cogs"></i>
+                                Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model)
+                        {
+                            <tr class="order-row" 
+                                data-status="@order.Status.ToLower()" 
+                                data-date="@order.OrderDate.ToString("yyyy-MM-dd")">
+                                <td>
+                                    <strong>#@order.Id.ToString("D6")</strong>
+                                </td>
+                                <td>
+                                    @order.OrderDate.ToString("dd/MM/yyyy")
+                                    <small class="text-muted d-block">@order.OrderDate.ToString("HH:mm")</small>
+                                </td>
+                                <td>
+                                    <div class="order-products">
+                                        <span class="product-count">@order.OrderDetails?.Count</span>
+                                        @if (order.OrderDetails?.Any() == true)
+                                        {
+                                            <small class="text-muted d-block">
+                                                @string.Join(", ", order.OrderDetails.Take(2).Select(od => od.Product?.Name))
+                                                @if (order.OrderDetails.Count > 2)
+                                                {
+                                                    <span>... y @(order.OrderDetails.Count - 2) más</span>
+                                                }
+                                            </small>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="order-total">₡@order.Total.ToString("N0")</span>
+                                    <small class="text-muted d-block">IVA incluido</small>
+                                </td>
+                                <td>
+                                    @{
+                                        var statusClass = order.Status.ToLower() switch
+                                        {
+                                            "pendiente" => "status-badge--warning",
+                                            "procesando" => "status-badge--info",
+                                            "enviado" => "status-badge--primary",
+                                            "entregado" => "status-badge--success",
+                                            "cancelada" => "status-badge--danger",
+                                            _ => "status-badge--secondary"
+                                        };
+                                        var statusIcon = order.Status.ToLower() switch
+                                        {
+                                            "pendiente" => "fas fa-clock",
+                                            "procesando" => "fas fa-cog fa-spin",
+                                            "enviado" => "fas fa-truck",
+                                            "entregado" => "fas fa-check",
+                                            "cancelada" => "fas fa-times",
+                                            _ => "fas fa-question"
+                                        };
+                                    }
+                                    <span class="status-badge @statusClass">
+                                        <i class="@statusIcon"></i> @order.Status
+                                    </span>
+                                </td>
+                                <td class="col-actions">
+                                    <div class="row-actions">
+                                        <a asp-action="Details" asp-route-id="@order.Id" class="row-action-btn row-action-btn--details" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                            <span class="d-none d-md-inline">Ver</span>
+                                        </a>
+                                        <a asp-action="Invoice" asp-route-id="@order.Id" class="row-action-btn row-action-btn--primary" title="Ver factura">
+                                            <i class="fas fa-file-invoice"></i>
+                                            <span class="d-none d-md-inline">Factura</span>
+                                        </a>
+                                        @if (order.Status == "Pendiente")
+                                        {
+                                            <form method="post" asp-action="CancelOrder" asp-route-id="@order.Id" class="d-inline">
+                                                <button type="submit" class="row-action-btn row-action-btn--danger" title="Cancelar orden" 
+                                                        onclick="return confirm('¿Estás seguro de que quieres cancelar esta orden?')">
+                                                    <i class="fas fa-ban"></i>
+                                                    <span class="d-none d-md-inline">Cancelar</span>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Cards para móviles -->
+        <div class="mobile-cards">
+            @foreach (var order in Model)
+            {
+                <div class="product-card order-card" 
+                     data-status="@order.Status.ToLower()" 
+                     data-date="@order.OrderDate.ToString("yyyy-MM-dd")">
+                    <div class="product-card-header">
+                        <h3 class="product-card-title">Orden #@order.Id.ToString("D6")</h3>
+                        <span class="order-date">@order.OrderDate.ToString("dd/MM/yyyy")</span>
+                    </div>
+                    <div class="product-card-body">
+                        <div class="product-card-row">
+                            <span class="product-card-label">Productos:</span>
+                            <span class="product-card-value">@order.OrderDetails?.Count ?? 0</span>
+                        </div>
+                        <div class="product-card-row">
+                            <span class="product-card-label">Total:</span>
+                            <span class="product-card-value order-total">?@order.Total.ToString("N0")</span>
+                        </div>
+                        <div class="product-card-row">
+                            <span class="product-card-label">Estado:</span>
+                            <span class="product-card-value">
+                                @{
+                                    var statusClass = order.Status.ToLower() switch
+                                    {
+                                        "pendiente" => "status-badge--warning",
+                                        "procesando" => "status-badge--info",
+                                        "enviado" => "status-badge--primary",
+                                        "entregado" => "status-badge--success",
+                                        "cancelada" => "status-badge--danger",
+                                        _ => "status-badge--secondary"
+                                    };
+                                    var statusIcon = order.Status.ToLower() switch
+                                    {
+                                        "pendiente" => "fas fa-clock",
+                                        "procesando" => "fas fa-cog fa-spin",
+                                        "enviado" => "fas fa-truck",
+                                        "entregado" => "fas fa-check",
+                                        "cancelada" => "fas fa-times",
+                                        _ => "fas fa-question"
+                                    };
+                                }
+                                <span class="status-badge @statusClass">
+                                    <i class="@statusIcon"></i> @order.Status
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="product-card-actions">
+                        <a asp-action="Details" asp-route-id="@order.Id" class="row-action-btn row-action-btn--details">
+                            <i class="fas fa-eye"></i> Ver Detalles
+                        </a>
+                        <a asp-action="Invoice" asp-route-id="@order.Id" class="row-action-btn row-action-btn--primary">
+                            <i class="fas fa-file-invoice"></i> Factura
+                        </a>
+                        @if (order.Status == "Pendiente")
+                        {
+                            <form method="post" asp-action="CancelOrder" asp-route-id="@order.Id" class="d-inline">
+                                <button type="submit" class="row-action-btn row-action-btn--danger" 
+                                        onclick="return confirm('¿Estás seguro de que quieres cancelar esta orden?')">
+                                    <i class="fas fa-ban"></i> Cancelar
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="fas fa-shopping-bag"></i>
+            <h3>No tienes compras realizadas</h3>
+            <p>¡Comienza a explorar nuestros productos y realiza tu primera compra!</p>
+            <a asp-controller="Home" asp-action="ViewProducts" class="crud-btn crud-btn--primary">
+                <i class="fas fa-shopping-cart"></i>
+                Ir a Comprar
+            </a>
+        </div>
+    }
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeFilters();
+    initializeResponsiveTable();
+    updateStats();
+});
+
+function initializeFilters() {
+    const statusFilter = document.getElementById('statusFilter');
+    const periodFilter = document.getElementById('periodFilter');
+    
+    function filterOrders() {
+        const selectedStatus = statusFilter.value.toLowerCase();
+        const selectedPeriod = periodFilter.value;
+        
+        const rows = document.querySelectorAll('.order-row, .order-card');
+        let visibleCount = 0;
+        
+        rows.forEach(row => {
+            const status = row.dataset.status || '';
+            const orderDate = new Date(row.dataset.date);
+            const now = new Date();
+            
+            let matchesStatus = !selectedStatus || status === selectedStatus;
+            let matchesPeriod = true;
+            
+            if (selectedPeriod) {
+                const daysDiff = (now - orderDate) / (1000 * 60 * 60 * 24);
+                switch (selectedPeriod) {
+                    case 'week':
+                        matchesPeriod = daysDiff <= 7;
+                        break;
+                    case 'month':
+                        matchesPeriod = daysDiff <= 30;
+                        break;
+                    case 'quarter':
+                        matchesPeriod = daysDiff <= 90;
+                        break;
+                    case 'year':
+                        matchesPeriod = daysDiff <= 365;
+                        break;
+                }
+            }
+            
+            if (matchesStatus && matchesPeriod) {
+                row.style.display = '';
+                if (row.classList.contains('order-row')) visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        updateVisibleCount(visibleCount);
+    }
+    
+    statusFilter.addEventListener('change', filterOrders);
+    periodFilter.addEventListener('change', filterOrders);
+}
+
+function initializeResponsiveTable() {
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+    
+    function handleResponsiveChange(e) {
+        const tableContainer = document.querySelector('.table-responsive-container');
+        const mobileCards = document.querySelector('.mobile-cards');
+        
+        if (e.matches) {
+            if (tableContainer) tableContainer.style.display = 'none';
+            if (mobileCards) mobileCards.style.display = 'block';
+        } else {
+            if (tableContainer) tableContainer.style.display = 'block';
+            if (mobileCards) mobileCards.style.display = 'none';
+        }
+    }
+    
+    handleResponsiveChange(mediaQuery);
+    mediaQuery.addEventListener('change', handleResponsiveChange);
+}
+
+function updateStats() {
+    const totalOrders = document.querySelectorAll('.order-row').length;
+    const pendingOrders = document.querySelectorAll('.order-row[data-status="pendiente"]').length;
+    
+    document.getElementById('order-stats').textContent = 
+        `Total: ${totalOrders} | Pendientes: ${pendingOrders}`;
+}
+
+function updateVisibleCount(count) {
+    const total = document.querySelectorAll('.order-row').length;
+    document.getElementById('order-stats').textContent = 
+        `Mostrando: ${count} de ${total}`;
+}
+</script>

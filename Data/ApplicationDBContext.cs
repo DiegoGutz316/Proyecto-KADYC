@@ -39,9 +39,62 @@ namespace Proyecto_v1.Data
                 .WithMany()
                 .HasForeignKey(ci => ci.ProductId);
 
-            // Configurar precisión decimal
+            // Configurar relaciones de órdenes
+            builder.Entity<Order>()
+                .HasOne(o => o.Customer)
+                .WithMany(c => c.Orders)
+                .HasForeignKey(o => o.CustomerId);
+
+            builder.Entity<OrderDetail>()
+                .HasOne(od => od.Order)
+                .WithMany(o => o.OrderDetails)
+                .HasForeignKey(od => od.OrderId);
+
+            builder.Entity<OrderDetail>()
+                .HasOne(od => od.Product)
+                .WithMany()
+                .HasForeignKey(od => od.ProductId);
+
+            // Configurar relación de productos y categorías
+            builder.Entity<Product>()
+                .HasOne(p => p.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.CategoryId);
+
+            // Configurar relación opcional de carrito con customer
+            builder.Entity<Cart>()
+                .HasOne(c => c.Customer)
+                .WithMany()
+                .HasForeignKey(c => c.CustomerId)
+                .IsRequired(false);
+
+            // Configurar precisión decimal para precios
             builder.Entity<CartItem>()
                 .Property(ci => ci.UnitPrice)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<Product>()
+                .Property(p => p.Price)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<OrderDetail>()
+                .Property(od => od.Price)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<OrderDetail>()
+                .Property(od => od.SubTotal)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<Order>()
+                .Property(o => o.SubTotal)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<Order>()
+                .Property(o => o.IVA)
+                .HasColumnType("decimal(18,2)");
+
+            builder.Entity<Order>()
+                .Property(o => o.Total)
                 .HasColumnType("decimal(18,2)");
         }
     }
