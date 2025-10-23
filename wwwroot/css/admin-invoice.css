@@ -1,0 +1,167 @@
+/* Estilos específicos para AdminInvoice */
+
+.admin-invoice-meta {
+    background: #f8f9fa;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.admin-info-panel,
+.admin-actions-panel {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    height: 100%;
+}
+
+.admin-info-panel h5,
+.admin-actions-panel h5 {
+    margin-bottom: 1rem;
+    color: #495057;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.admin-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.admin-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.admin-meta-item label {
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.admin-meta-item span {
+    color: #495057;
+}
+
+.quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.product-image-invoice {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 0.25rem;
+    margin-right: 0.5rem;
+}
+
+.product-item {
+    display: flex;
+    align-items: center;
+}
+
+.product-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.product-info strong {
+    font-size: 0.9rem;
+}
+
+.product-info small {
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+.footer-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.admin-notes {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid #007bff;
+}
+
+.admin-notes p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+}
+
+.admin-badge {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.email-link {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.email-link:hover {
+    text-decoration: underline;
+}
+
+/* Estilos para impresión */
+@media print {
+    .no-print,
+    .admin-invoice-meta,
+    .crud-header,
+    .crud-actions,
+    .admin-badge {
+        display: none !important;
+    }
+    
+    .invoice-container {
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+    }
+    
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+    }
+    
+    .admin-badge {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-meta-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .footer-sections {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .admin-invoice-meta {
+        padding: 1rem;
+    }
+    
+    .admin-info-panel,
+    .admin-actions-panel {
+        padding: 1rem;
+    }
+}

@@ -1,0 +1,197 @@
+﻿@model Proyecto_v1.Models.Order
+
+@{
+    ViewData["Title"] = $"Factura #{Model.Id.ToString("D6")}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/invoice-styles.css" asp-append-version="true" />
+
+<div class="invoice-container">
+    <div class="invoice-header">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="company-info">
+                    <h1 class="company-name">KADYC</h1>
+                    <p class="company-tagline">Moda Minimalista</p>
+                    <div class="company-details">
+                        <p><i class="fas fa-map-marker-alt"></i> San José, Costa Rica</p>
+                        <p><i class="fas fa-phone"></i> +506 2222-3333</p>
+                        <p><i class="fas fa-envelope"></i> info@kadyc.com</p>
+                        <p><i class="fas fa-globe"></i> www.kadyc.com</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="invoice-info">
+                    <h2 class="invoice-title">FACTURA</h2>
+                    <div class="invoice-details">
+                        <p><strong>Factura #:</strong> @Model.Id.ToString("D6")</p>
+                        <p><strong>Fecha:</strong> @Model.OrderDate.ToString("dd/MM/yyyy")</p>
+                        <p><strong>Estado:</strong> 
+                            <span class="status-badge status-@Model.Status.ToLower()">@Model.Status</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="invoice-body">
+        <!-- Información del cliente -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="bill-to">
+                    <h4>Facturar a:</h4>
+                    <div class="customer-info">
+                        <p><strong>@Model.Customer?.FirstName @Model.Customer?.LastName</strong></p>
+                        <p>@Model.Customer?.Email</p>
+                        <p>@Model.Customer?.Address</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="order-summary">
+                    <h4>Resumen del Pedido:</h4>
+                    <div class="summary-details">
+                        <p><strong>Fecha del Pedido:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+                        <p><strong>Fecha Límite Devolución:</strong> @Model.DevolutionDate.ToString("dd/MM/yyyy")</p>
+                        <p><strong>Productos:</strong> @Model.OrderDetails?.Count</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de productos -->
+        <div class="products-table">
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Precio Unit.</th>
+                        <th>Cantidad</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.OrderDetails?.Any() == true)
+                    {
+                        @for (int i = 0; i < Model.OrderDetails.Count; i++)
+                        {
+                            var detail = Model.OrderDetails.ElementAt(i);
+                            <tr>
+                                <td>@(i + 1)</td>
+                                <td>
+                                    <strong>@detail.Product?.Name</strong>
+                                    @if (!string.IsNullOrEmpty(detail.Product?.Size))
+                                    {
+                                        <br><small class="text-muted">Talla: @detail.Product.Size</small>
+                                    }
+                                </td>
+                                <td>@detail.Product?.Category?.Name</td>
+                                <td>₡@detail.Price.ToString("N0")</td>
+                                <td class="text-center">@detail.Quantity</td>
+                                <td>₡@detail.SubTotal.ToString("N0")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Totales -->
+        <div class="row">
+            <div class="col-md-8"></div>
+            <div class="col-md-4">
+                <div class="totals-section">
+                    <table class="table table-sm">
+                        <tr>
+                            <td><strong>Subtotal:</strong></td>
+                            <td class="text-end">₡@Model.SubTotal.ToString("N0")</td>
+                        </tr>
+                        <tr>
+                            <td><strong>IVA (13%):</strong></td>
+                            <td class="text-end">₡@Model.IVA.ToString("N0")</td>
+                        </tr>
+                        <tr class="table-dark">
+                            <td><strong>TOTAL:</strong></td>
+                            <td class="text-end"><strong>₡@Model.Total.ToString("N0")</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="invoice-footer">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="payment-info">
+                        <h5>Información de Pago:</h5>
+                        <p><strong>Método de Pago:</strong> Procesado Online</p>
+                        <p><strong>Estado del Pago:</strong> 
+                            @if (Model.Status == "Entregado" || Model.Status == "Enviado")
+                            {
+                                <span class="text-success">Pagado</span>
+                            }
+                            else if (Model.Status == "Cancelada")
+                            {
+                                <span class="text-danger">Cancelado</span>
+                            }
+                            else
+                            {
+                                <span class="text-warning">Pendiente</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="return-policy">
+                        <h5>Política de Devolución:</h5>
+                        <p>Tienes hasta <strong>30 días</strong> desde la fecha de compra para devolver productos no utilizados.</p>
+                        <p>Fecha límite: <strong>@Model.DevolutionDate.ToString("dd/MM/yyyy")</strong></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="thank-you">
+                <hr>
+                <p class="text-center"><strong>¡Gracias por tu compra en KADYC!</strong></p>
+                <p class="text-center text-muted">Si tienes alguna pregunta sobre esta factura, contáctanos en info@kadyc.com</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="invoice-actions">
+        <button onclick="window.print()" class="btn btn-primary btn-lg">
+            <i class="fas fa-print"></i> Imprimir Factura
+        </button>
+        <button onclick="downloadPDF()" class="btn btn-success btn-lg">
+            <i class="fas fa-download"></i> Descargar PDF
+        </button>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-arrow-left"></i> Volver a Detalles
+        </a>
+        <a asp-action="Index" class="btn btn-outline-primary btn-lg">
+            <i class="fas fa-list"></i> Mis Compras
+        </a>
+    </div>
+</div>
+
+<script>
+function downloadPDF() {
+    // Esta función se puede implementar con una librería como jsPDF o html2pdf
+    alert('Funcionalidad de descarga PDF en desarrollo. Por ahora puedes usar "Imprimir" y seleccionar "Guardar como PDF".');
+}
+
+// Auto-print si viene de un parámetro de URL
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('print') === 'true') {
+    window.onload = function() {
+        window.print();
+    };
+}
+</script>
