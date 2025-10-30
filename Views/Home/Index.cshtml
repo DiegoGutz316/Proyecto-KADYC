@@ -136,10 +136,6 @@
       <a href="#segunda" data-link>SEGUNDA MANO</a>
       <a href="#novedades" data-link>NOVEDADES</a>
     </nav>
-    <div class="drawer-right">
-      <img src="https://i.pinimg.com/736x/4b/88/f4/4b88f47c2f019c91cd34437e627efab0.jpg" alt="Editorial KADYC"
-        loading="lazy" />
-    </div>
   </aside>
 
   <!-- PRIMERA VISTA -->
@@ -288,130 +284,165 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
+  <!-- FOOTER MEJORADO -->
   <footer class="site-footer" id="footer" role="contentinfo">
-    <div class="footer-grid" aria-label="Información del sitio">
+    <div class="footer-container">
+      <!-- Newsletter Section -->
+      <section class="footer-newsletter">
+        <div class="newsletter-content">
+          <h3 class="newsletter-title">Únete a nuestra newsletter</h3>
+          <p class="newsletter-description">Sé el primero en conocer nuestras nuevas colecciones y ofertas exclusivas</p>
+          <form class="newsletter-form" id="newsletter-form">
+            <div class="newsletter-input-group">
+              <input type="email" placeholder="Tu email" class="newsletter-input" required>
+              <button type="submit" class="newsletter-btn">Suscribirse</button>
+            </div>
+            <small class="newsletter-disclaimer">Al suscribirte, aceptas recibir emails promocionales de KADYC</small>
+          </form>
+        </div>
+      </section>
 
-      <!-- Columna 1: About -->
-      <section class="footer-col">
-        <h3 class="footer-title">About us</h3>
-        <details class="footer-accordion" name="footer-accordion">
-          <summary class="footer-summary">Quiénes somos</summary>
-          <div class="footer-panel">
+      <!-- Main Footer Content -->
+      <div class="footer-grid" aria-label="Información del sitio">
+        <!-- Columna 1: About -->
+        <section class="footer-col">
+          <h3 class="footer-title">Acerca de KADYC</h3>
+          <div class="footer-content">
             <p class="footer-text">
               KADYC es un espacio digital para emprendedores de moda —nueva y segunda mano—
               donde los clientes encuentran variedad, calidad y precios accesibles.
             </p>
+            <div class="footer-highlights">
+              <div class="highlight-item">
+                <i class="fas fa-shipping-fast"></i>
+                <span>Envío gratis</span>
+              </div>
+              <div class="highlight-item">
+                <i class="fas fa-undo"></i>
+                <span>Devoluciones 30 días</span>
+              </div>
+              <div class="highlight-item">
+                <i class="fas fa-shield-alt"></i>
+                <span>Compra segura</span>
+              </div>
+            </div>
           </div>
-        </details>
+        </section>
 
-        <details class="footer-accordion" name="footer-accordion" open>
-          <summary class="footer-summary">Misión y Visión de KADYC</summary>
-          <summary class="footer-summary">Misión</summary>
-          <div class="footer-panel">
-            <p class="footer-text">
-              Brindar un espacio confiable e innovador para ofrecer prendas nuevas y de segunda mano,
-              fomentando la colaboración y el crecimiento conjunto.
-            </p>
-            </div>
-            <summary class="footer-summary">Visión</summary>
-            <div class="footer-panel">
-              <p class="footer-text">
-                Consolidarnos como una plataforma de referencia en el comercio digital de moda, impulsando a
-                pequeños emprendimientos a crecer y posicionarse, y convirtiéndonos en un punto de encuentro
-                inclusivo, sostenible y reconocido a nivel nacional.
-              </p>
-            </div>
-        </details>
-      </section>
-
-      <!-- Columna 2: Client Services -->
-      <section class="footer-col">
-        <h3 class="footer-title">Client Services</h3>
-        <details class="footer-accordion" name="footer-accordion" open>
-          <summary class="footer-summary">Contacto</summary>
-          <nav class="footer-panel footer-list" aria-label="Opciones de contacto">
-            <a href="#contacto">Formulario</a>
-            <a href="mailto:contacto@kadyc.com">Email</a>
-            <a href="tel:+50600000000">Teléfono</a>
-          </nav>
-        </details>
-
-        <details class="footer-accordion" name="footer-accordion">
-          <summary class="footer-summary">Ayuda y devoluciones</summary>
-          <nav class="footer-panel footer-list">
-            <a href="#faq">Preguntas frecuentes</a>
-            <a href="#envios">Envíos</a>
-            <a href="#devoluciones">Devoluciones</a>
-          </nav>
-        </details>
-      </section>
-
-      <!-- Columna 3: Store Locator -->
-      <details class="footer-accordion" name="footer-accordion" open>
-        <summary class="footer-summary">Ubicación</summary>
-        <nav class="footer-panel footer-list" aria-label="Ubicaciones">
-          <a href="https://maps.app.goo.gl/1HecDr4HAfbERMN89" target="_blank" rel="noopener noreferrer">
-            Costa Rica - Nicoya
-          </a>
-        </nav>
-      </details>
-
-      <!-- Columna 4: Legal -->
-      <section class="footer-col">
-        <h3 class="footer-title">Legal</h3>
-
-        <details class="footer-accordion" name="footer-accordion" open>
-          <summary class="footer-summary">Términos y Políticas</summary>
-          <nav class="footer-panel footer-list" aria-label="Términos y políticas">
-            <a href="politicas/terminos.html">Términos de uso</a>
-            <a href="politicas/privacidad.html">Política de Privacidad</a>
-            <a href="#condiciones">Condiciones Generales</a>
-          </nav>
-        </details>
-
-        <details class="footer-accordion" name="footer-accordion">
-          <summary class="footer-summary">Mapa del sitio</summary>
-          <nav class="footer-panel footer-list" aria-label="Mapa del sitio">
-            <a href="#home">Home</a>
+        <!-- Columna 2: Navegación -->
+        <section class="footer-col">
+          <h3 class="footer-title">Navegación</h3>
+          <nav class="footer-nav" aria-label="Enlaces de navegación">
+            @if (User.Identity.IsAuthenticated)
+            {
+              <a asp-controller="Home" asp-action="ViewProducts">Todos los productos</a>
+              <a asp-controller="Cart" asp-action="Index">Mi carrito</a>
+              <a asp-controller="Orders" asp-action="Index">Mis compras</a>
+              <a asp-controller="Orders" asp-action="Profile">Mi perfil</a>
+            }
+            else
+            {
+              <a asp-area="Identity" asp-page="/Account/Login">Iniciar sesión</a>
+              <a asp-area="Identity" asp-page="/Account/Register">Crear cuenta</a>
+            }
             <a href="#mujer">Mujer</a>
             <a href="#hombre">Hombre</a>
             <a href="#segunda">Segunda mano</a>
-            <a href="#novedades">Novedades</a>
           </nav>
-        </details>
-      </section>
-    </div>
+        </section>
 
-    <div class="footer-bottom">
-      <div class="footer-social" aria-label="Redes sociales">
-        <span>Follow Us</span>
-        <a href="https://www.instagram.com/kadycstyle_?igsh=b2c4bWYzMmFoZHQ=">Instagram</a>
-        <a href="https://wa.me/50600000000">#WhatsApp</a>
-        <a href="https://twitter.com">X</a>
+        <!-- Columna 3: Soporte -->
+        <section class="footer-col">
+          <h3 class="footer-title">Soporte al cliente</h3>
+          <div class="footer-support">
+            <div class="support-item">
+              <i class="fas fa-phone"></i>
+              <div>
+                <span class="support-label">Teléfono</span>
+                <a href="tel:+50622223333" class="support-link">+506 2222-3333</a>
+              </div>
+            </div>
+            <div class="support-item">
+              <i class="fas fa-envelope"></i>
+              <div>
+                <span class="support-label">Email</span>
+                <a href="mailto:info@kadyc.com" class="support-link">info@kadyc.com</a>
+              </div>
+            </div>
+            <div class="support-item">
+              <i class="fas fa-clock"></i>
+              <div>
+                <span class="support-label">Horario</span>
+                <span class="support-text">Lun - Vie: 9:00 - 18:00</span>
+              </div>
+            </div>
+            <div class="support-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <div>
+                <span class="support-label">Ubicación</span>
+                <a href="https://maps.app.goo.gl/1HecDr4HAfbERMN89" target="_blank" rel="noopener" class="support-link">
+                  Nicoya, Costa Rica
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Columna 4: Legal y Redes -->
+        <section class="footer-col">
+          <h3 class="footer-title">Síguenos</h3>
+          <div class="footer-social-links">
+            <a href="https://www.instagram.com/kadycstyle_?igsh=b2c4bWYzMmFoZHQ=" target="_blank" rel="noopener" class="social-link">
+              <i class="fab fa-instagram"></i>
+              <span>Instagram</span>
+            </a>
+            <a href="https://wa.me/50600000000" target="_blank" rel="noopener" class="social-link">
+              <i class="fab fa-whatsapp"></i>
+              <span>WhatsApp</span>
+            </a>
+            <a href="https://twitter.com" target="_blank" rel="noopener" class="social-link">
+              <i class="fab fa-twitter"></i>
+              <span>Twitter</span>
+            </a>
+          </div>
+          
+          <div class="footer-legal">
+            <h4 class="legal-title">Legal</h4>
+            <nav class="legal-nav">
+              <a href="#terminos">Términos de uso</a>
+              <a href="#privacidad">Política de privacidad</a>
+              <a href="#cookies">Política de cookies</a>
+            </nav>
+          </div>
+        </section>
       </div>
 
-      <div class="footer-brand" aria-label="Marca">KADYC</div>
-      <div class="footer-location" aria-label="Ubicación actual">Costa Rica – Nicoya</div>
-    </div>
+      <!-- Métodos de Pago -->
+      <section class="footer-payment">
+        <h4 class="payment-title">Métodos de pago seguros</h4>
+        <div class="payment-logos">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/2560px-Mastercard-logo.svg.png" alt="Mastercard" loading="lazy">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/American_Express_logo_%282018%29.svg/1200px-American_Express_logo_%282018%29.svg.png" alt="American Express" loading="lazy">
+          <img src="https://upload.wikimedia.org/frameworks/commons/a/a4/Paypal_2014_logo.png" alt="PayPal" loading="lazy">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa" loading="lazy">
+        </div>
+      </section>
 
-    <section id="payment-logos" class="kad-section">
-      <div class="kad-wrap">
-        <div class="kad-payment-logos">
-          <div class="kad-logos-container">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/2560px-Mastercard-logo.svg.png"
-              alt="Mastercard" loading="lazy">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/American_Express_logo_%282018%29.svg/1200px-American_Express_logo_%282018%29.svg.png"
-              alt="American Express" loading="lazy">
-            <img src="https://upload.wikimedia.org/frameworks/commons/a/a4/Paypal_2014_logo.png" alt="PayPal"
-              loading="lazy">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa" loading="lazy">
+      <!-- Footer Bottom -->
+      <div class="footer-bottom">
+        <div class="footer-brand">KADYC</div>
+        <div class="footer-copyright">
+          <p>&copy; 2024 KADYC. Todos los derechos reservados.</p>
+          <p class="footer-location">Hecho con ❤️ en Costa Rica</p>
+        </div>
+        <div class="footer-certification">
+          <div class="cert-item">
+            <i class="fas fa-lock"></i>
+            <span>SSL Seguro</span>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   </footer>
 
   <!-- Scripts para funcionalidad del carrito -->
@@ -421,6 +452,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         updateCartCount();
         initializeFeaturedProducts();
+        initializeNewsletter();
     });
 
     function updateCartCount() {
@@ -475,6 +507,31 @@
         });
     }
 
+    function initializeNewsletter() {
+        const newsletterForm = document.getElementById('newsletter-form');
+        if (newsletterForm) {
+            newsletterForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = this.querySelector('.newsletter-input').value;
+                const button = this.querySelector('.newsletter-btn');
+                
+                button.textContent = 'Enviando...';
+                button.disabled = true;
+                
+                // Simular envío
+                setTimeout(() => {
+                    button.textContent = '¡Listo!';
+                    this.querySelector('.newsletter-input').value = '';
+                    
+                    setTimeout(() => {
+                        button.textContent = 'Suscribirse';
+                        button.disabled = false;
+                    }, 2000);
+                }, 1000);
+            });
+        }
+    }
+
     window.updateCartCount = updateCartCount;
     </script>
   }
@@ -501,6 +558,15 @@
         featuredCards.forEach(card => {
             observer.observe(card);
         });
+
+        // Newsletter para usuarios no autenticados
+        const newsletterForm = document.getElementById('newsletter-form');
+        if (newsletterForm) {
+            newsletterForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('¡Gracias! Para completar tu suscripción, por favor inicia sesión o crea una cuenta.');
+            });
+        }
     });
     </script>
   }

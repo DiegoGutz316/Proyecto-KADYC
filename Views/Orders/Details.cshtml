@@ -162,90 +162,97 @@
         </div>
     </div>
 
-    <!-- Productos de la orden -->
-    <div class="details-card" style="margin-top: 2rem;">
+    <!-- Productos de la orden - SECCIÓN MEJORADA -->
+    <div class="details-card products-section" style="margin-top: 2rem;">
         <div class="details-card-header">
             <i class="fas fa-shopping-bag"></i>
-            <h3>Productos Ordenados (@Model.OrderDetails?.Count ?? 0 productos)</h3>
+            <h3>Productos Ordenados (@(Model.OrderDetails?.Count ?? 0) productos)</h3>
         </div>
         <div class="details-card-body">
             @if (Model.OrderDetails?.Any() == true)
             {
-                <div class="order-products-table">
-                    <!-- Vista desktop -->
-                    <div class="table-responsive d-none d-md-block">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Producto</th>
-                                    <th>Categoría</th>
-                                    <th>Precio Unitario</th>
-                                    <th>Cantidad</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var detail in Model.OrderDetails)
-                                {
-                                    <tr>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="product-image-small me-3">
-                                                    @if (!string.IsNullOrEmpty(detail.Product?.ImageUrl))
-                                                    {
-                                                        <img src="@detail.Product.ImageUrl" alt="@detail.Product.Name" />
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="no-image-small">
-                                                            <i class="fas fa-image"></i>
-                                                        </div>
-                                                    }
-                                                </div>
-                                                <div>
-                                                    <strong>@detail.Product?.Name</strong>
-                                                    <br>
-                                                    <small class="text-muted">Talla: @detail.Product?.Size</small>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>@detail.Product?.Category?.Name</td>
-                                        <td>?@detail.Price.ToString("N0")</td>
-                                        <td>
-                                            <span class="quantity-badge">@detail.Quantity</span>
-                                        </td>
-                                        <td class="fw-bold">?@detail.SubTotal.ToString("N0")</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Vista móvil -->
-                    <div class="d-md-none">
+                <div class="order-products-container">
+                    <!-- Vista mejorada para productos -->
+                    <div class="products-grid">
                         @foreach (var detail in Model.OrderDetails)
                         {
-                            <div class="product-detail-card">
-                                <div class="d-flex align-items-start">
-                                    <div class="product-image-small me-3">
-                                        @if (!string.IsNullOrEmpty(detail.Product?.ImageUrl))
+                            <div class="product-order-card">
+                                <div class="product-order-image">
+                                    @if (!string.IsNullOrEmpty(detail.Product?.ImageUrl))
+                                    {
+                                        <img src="@detail.Product.ImageUrl" alt="@detail.Product?.Name" class="product-img" />
+                                    }
+                                    else
+                                    {
+                                        <div class="no-image-placeholder">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    }
+                                    <div class="quantity-overlay">
+                                        <span class="quantity-badge">@detail.Quantity</span>
+                                    </div>
+                                </div>
+                                <div class="product-order-info">
+                                    <h4 class="product-title">@detail.Product?.Name</h4>
+                                    <div class="product-category">
+                                        <i class="fas fa-tag"></i>
+                                        @detail.Product?.Category?.Name
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(detail.Product?.Size))
+                                    {
+                                        <div class="product-size">
+                                            <i class="fas fa-ruler"></i>
+                                            Talla: @detail.Product.Size
+                                        </div>
+                                    }
+                                    <div class="product-description">
+                                        @detail.Product?.Description
+                                    </div>
+                                    <div class="product-pricing">
+                                        <div class="unit-price">
+                                            <span class="price-label">Precio unitario:</span>
+                                            <span class="price-value">₡@detail.Price.ToString("N0")</span>
+                                        </div>
+                                        <div class="total-price">
+                                            <span class="price-label">Subtotal:</span>
+                                            <span class="price-value total">₡@detail.SubTotal.ToString("N0")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    <!-- Vista compacta para móviles -->
+                    <div class="products-list-mobile d-md-none">
+                        @foreach (var detail in Model.OrderDetails)
+                        {
+                            <div class="product-mobile-card">
+                                <div class="product-mobile-image">
+                                    @if (!string.IsNullOrEmpty(detail.Product?.ImageUrl))
+                                    {
+                                        <img src="@detail.Product.ImageUrl" alt="@detail.Product?.Name" />
+                                    }
+                                    else
+                                    {
+                                        <div class="no-image-small">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="product-mobile-details">
+                                    <h6 class="product-mobile-title">@detail.Product?.Name</h6>
+                                    <div class="product-mobile-meta">
+                                        <span class="category-tag">@detail.Product?.Category?.Name</span>
+                                        @if (!string.IsNullOrEmpty(detail.Product?.Size))
                                         {
-                                            <img src="@detail.Product.ImageUrl" alt="@detail.Product.Name" />
-                                        }
-                                        else
-                                        {
-                                            <div class="no-image-small">
-                                                <i class="fas fa-image"></i>
-                                            </div>
+                                            <span class="size-tag">Talla: @detail.Product.Size</span>
                                         }
                                     </div>
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-1">@detail.Product?.Name</h6>
-                                        <p class="text-muted mb-1">@detail.Product?.Category?.Name</p>
-                                        <p class="text-muted mb-2">Talla: @detail.Product?.Size</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span>?@detail.Price.ToString("N0") × @detail.Quantity</span>
-                                            <strong>?@detail.SubTotal.ToString("N0")</strong>
+                                    <div class="product-mobile-pricing">
+                                        <div class="mobile-price-row">
+                                            <span>₡@detail.Price.ToString("N0") × @detail.Quantity</span>
+                                            <strong>₡@detail.SubTotal.ToString("N0")</strong>
                                         </div>
                                     </div>
                                 </div>
@@ -253,10 +260,35 @@
                         }
                     </div>
                 </div>
+                
+                <!-- Resumen de productos -->
+                <div class="products-summary">
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-boxes"></i>
+                            <span class="stat-value">@Model.OrderDetails.Count</span>
+                            <span class="stat-label">Productos diferentes</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-calculator"></i>
+                            <span class="stat-value">@Model.OrderDetails.Sum(d => d.Quantity)</span>
+                            <span class="stat-label">Unidades totales</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span class="stat-value">₡@Model.SubTotal.ToString("N0")</span>
+                            <span class="stat-label">Valor productos</span>
+                        </div>
+                    </div>
+                </div>
             }
             else
             {
-                <p class="text-muted text-center py-4">No hay productos en esta orden.</p>
+                <div class="empty-products">
+                    <i class="fas fa-box-open"></i>
+                    <h4>No hay productos en esta orden</h4>
+                    <p class="text-muted">Esta orden no contiene productos.</p>
+                </div>
             }
         </div>
     </div>
