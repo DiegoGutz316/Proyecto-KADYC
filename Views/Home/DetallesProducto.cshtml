@@ -1,4 +1,4 @@
-@model Proyecto_v1.Models.Product
+Ôªø@model Proyecto_v1.Models.Product
 
 @{
     ViewData["Title"] = Model.Name;
@@ -39,11 +39,11 @@
                 }
                 
                 <div class="product-price-section mt-3">
-                    <h2 class="product-price">?@Model.Price.ToString("N0")</h2>
+                    <h2 class="product-price">‚Ç°@Model.Price.ToString("N0")</h2>
                 </div>
                 
                 <div class="product-description mt-4">
-                    <h5>DescripciÛn</h5>
+                    <h5>Descripci√≥n</h5>
                     <p>@Model.Description</p>
                 </div>
                 
@@ -93,7 +93,7 @@
                 {
                     <div class="product-actions mt-4">
                         <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-primary btn-lg">
-                            <i class="fas fa-sign-in-alt"></i> Iniciar SesiÛn para Comprar
+                            <i class="fas fa-sign-in-alt"></i> Iniciar Sesi√≥n para Comprar
                         </a>
                     </div>
                 }
@@ -102,38 +102,38 @@
                     <ul class="nav nav-tabs" id="productTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">
-                                InformaciÛn
+                                Informaci√≥n
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping" type="button" role="tab">
-                                EnvÌo
+                                Env√≠o
                             </button>
                         </li>
                     </ul>
                     <div class="tab-content" id="productTabsContent">
                         <div class="tab-pane fade show active" id="info" role="tabpanel">
                             <div class="mt-3">
-                                <h6>CaracterÌsticas del producto</h6>
+                                <h6>Caracter√≠sticas del producto</h6>
                                 <ul class="list-unstyled">
                                     <li><strong>Nombre:</strong> @Model.Name</li>
                                     @if (!string.IsNullOrEmpty(Model.Size))
                                     {
                                         <li><strong>Talla:</strong> @Model.Size</li>
                                     }
-                                    <li><strong>CategorÌa:</strong> @(Model.Category?.Name ?? "Sin categorÌa")</li>
+                                    <li><strong>Categor√≠a:</strong> @(Model.Category?.Name ?? "Sin categor√≠a")</li>
                                     <li><strong>Stock:</strong> @Model.Stock unidades</li>
                                 </ul>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="shipping" role="tabpanel">
                             <div class="mt-3">
-                                <h6>InformaciÛn de envÌo</h6>
+                                <h6>Informaci√≥n de env√≠o</h6>
                                 <ul class="list-unstyled">
-                                    <li><i class="fas fa-truck text-primary"></i> EnvÌo gratis en compras mayores a ?50,000</li>
-                                    <li><i class="fas fa-clock text-primary"></i> Entrega en 3-5 dÌas h·biles</li>
-                                    <li><i class="fas fa-shield-alt text-primary"></i> GarantÌa de satisfacciÛn</li>
-                                    <li><i class="fas fa-undo text-primary"></i> Devoluciones gratuitas hasta 30 dÌas</li>
+                                    <li><i class="fas fa-truck text-primary"></i> Env√≠o gratis en compras mayores a ?50,000</li>
+                                    <li><i class="fas fa-clock text-primary"></i> Entrega en 3-5 d√≠as h√°biles</li>
+                                    <li><i class="fas fa-shield-alt text-primary"></i> Garant√≠a de satisfacci√≥n</li>
+                                    <li><i class="fas fa-undo text-primary"></i> Devoluciones gratuitas hasta 30 d√≠as</li>
                                 </ul>
                             </div>
                         </div>
@@ -243,7 +243,7 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Manejar envÌo del formulario de agregar al carrito
+            // Manejar env√≠o del formulario de agregar al carrito
             const addToCartForm = document.querySelector('form[action*="AddToCart"]');
             if (addToCartForm) {
                 addToCartForm.addEventListener('submit', function(e) {
@@ -253,7 +253,7 @@
                     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Agregando...';
                     button.disabled = true;
                     
-                    // Restaurar despuÈs de un momento (esto se puede mejorar con AJAX)
+                    // Restaurar despu√©s de un momento (esto se puede mejorar con AJAX)
                     setTimeout(() => {
                         button.innerHTML = originalText;
                         button.disabled = false;

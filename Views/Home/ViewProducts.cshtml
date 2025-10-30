@@ -44,7 +44,7 @@
         <!-- Filtros y búsqueda -->
         <div class="catalog-filters">
             <div class="filter-search">
-                <input type="text" id="product-search" placeholder="Buscar productos..." class="search-input">
+                <input type="text" id="product-search" placeholder="Buscar por nombre o descripción..." class="search-input">
                 <i class="fas fa-search search-icon"></i>
             </div>
             <div class="filter-category">
@@ -69,7 +69,11 @@
             {
                 foreach (var producto in Model)
                 {
-                    <article class="kad-product-card" data-category="@producto.Category?.Name" data-name="@producto.Name.ToLower()">
+                    <article class="kad-product-card" 
+                             data-category="@producto.Category?.Name" 
+                             data-name="@producto.Name.ToLower()" 
+                             data-description="@(producto.Description?.ToLower() ?? string.Empty)"
+                             data-search-content="@((producto.Name + " " + producto.Description + " " + producto.Category?.Name).ToLower())">
                         <div class="kad-product-image-container">
                             @if (!string.IsNullOrEmpty(producto.ImageUrl))
                             {
@@ -81,13 +85,13 @@
                                     <i class="fas fa-image"></i>
                                 </div>
                             }
-                            <div class="product-overlay">
+                            @* <div class="product-overlay">
                                 <div class="quick-actions">
-                                    @* <button class="quick-view-btn" onclick="showQuickView(@producto.Id)" title="Vista rápida">
+                                    <button class="quick-view-btn" onclick="showQuickView(@producto.Id)" title="Vista rápida">
                                         <i class="fas fa-eye"></i>
-                                    </button> *@
+                                    </button>
                                 </div>
-                            </div>
+                            </div> *@
                             @if (producto.Stock <= 0)
                             {
                                 <div class="out-of-stock-badge">Agotado</div>
@@ -95,18 +99,19 @@
                         </div>
                         <div class="kad-product-info">
                             <div class="product-header">
-                                <h3 class="kad-product-title">@producto.Name</h3>
+                                @* Título con tooltip para nombres largos *@
+                                <h3 class="kad-product-title" title="@producto.Name">@producto.Name</h3>
                                 @if (!string.IsNullOrEmpty(producto.Category?.Name))
                                 {
-                                    <span class="kad-product-category">@producto.Category.Name</span>
+                                    <span class="kad-product-category" title="@producto.Category.Name">@producto.Category.Name</span>
                                 }
                             </div>
-                            <p class="kad-product-desc">@producto.Description</p>
+                            <p class="kad-product-desc" title="@producto.Description">@producto.Description</p>
                             <div class="kad-product-meta">
                                 <span class="kad-product-price">₡@producto.Price.ToString("N0")</span>
                                 @if (producto.Stock > 0)
                                 {
-                                    <span class="stock-indicator">@producto.Stock disponibles</span>
+                                    <span class="stock-indicator" title="@producto.Stock unidades disponibles">@producto.Stock disponibles</span>
                                 }
                                 else
                                 {
@@ -127,7 +132,7 @@
                                                 }
                                             </select>
                                         </div>
-                                        <button type="submit" class="kad-btn kad-btn--cart">
+                                        <button type="submit" class="kad-btn kad-btn--cart" title="Agregar @producto.Name al carrito">
                                             <i class="fas fa-shopping-cart"></i>
                                             <span class="btn-text">Agregar al Carrito</span>
                                         </button>
@@ -135,14 +140,14 @@
                                 }
                                 else
                                 {
-                                    <button class="kad-btn kad-btn--disabled" disabled>
+                                    <button class="kad-btn kad-btn--disabled" disabled title="Producto sin stock">
                                         <i class="fas fa-times"></i>
                                         Sin Stock
                                     </button>
                                 }
-                                <a class="kad-btn kad-btn--outline kad-btn--small" asp-controller="Home" asp-action="DetallesProducto" asp-route-id="@producto.Id">
+                                <a class="kad-btn kad-btn--outline kad-btn--small" asp-controller="Home" asp-action="DetallesProducto" asp-route-id="@producto.Id" title="Ver detalles de @producto.Name">
                                     <i class="fas fa-info-circle"></i>
-                                    Ver detalles
+                                    <span class="btn-text">Ver detalles</span>
                                 </a>
                             </div>
                         </div>
@@ -159,9 +164,20 @@
             }
         </div>
 
+        <!-- Indicador de resultados de búsqueda -->
+        <div class="search-results-indicator" id="search-results" style="display: none;">
+            <p class="search-results-text">
+                <i class="fas fa-search"></i>
+                <span id="results-count">0</span> productos encontrados
+                <button class="clear-search-btn" id="clear-search" title="Limpiar búsqueda">
+                    <i class="fas fa-times"></i>
+                </button>
+            </p>
+        </div>
+
         <!-- Botón flotante del carrito -->
         <div class="floating-cart" id="floating-cart">
-            <a asp-controller="Cart" asp-action="Index" class="floating-cart-btn">
+            <a asp-controller="Cart" asp-action="Index" class="floating-cart-btn" title="Ir al carrito">
                 <i class="fas fa-shopping-cart"></i>
                 <span class="floating-cart-count" id="floating-cart-count">0</span>
             </a>
@@ -174,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCartCounts();
     initializeCartFunctionality();
     initializeFilters();
-    // initializeFloatingCart();
+    initializeProductTitleTooltips();
 });
 
 function updateCartCounts() {
@@ -236,29 +252,204 @@ function initializeFilters() {
     const searchInput = document.getElementById('product-search');
     const categoryFilter = document.getElementById('category-filter');
     const productCards = document.querySelectorAll('.kad-product-card');
+    const searchResults = document.getElementById('search-results');
+    const resultsCount = document.getElementById('results-count');
+    const clearSearchBtn = document.getElementById('clear-search');
     
     function filterProducts() {
-        const searchTerm = searchInput.value.toLowerCase();
+        const searchTerm = searchInput.value.toLowerCase().trim();
         const selectedCategory = categoryFilter.value;
+        let visibleCount = 0;
         
         productCards.forEach(card => {
-            const productName = card.dataset.name || '';
+            // Obtener todos los datos de búsqueda del producto
+            const searchContent = card.dataset.searchContent || '';
             const productCategory = card.dataset.category || '';
             
-            const matchesSearch = productName.includes(searchTerm);
+            // Verificar coincidencias
+            const matchesSearch = !searchTerm || searchContent.includes(searchTerm);
             const matchesCategory = !selectedCategory || productCategory === selectedCategory;
             
             if (matchesSearch && matchesCategory) {
                 card.style.display = 'flex';
                 card.style.animation = 'fadeIn 0.3s ease';
+                visibleCount++;
+                
+                // Resaltar texto coincidente si hay búsqueda
+                if (searchTerm) {
+                    highlightSearchTerm(card, searchTerm);
+                } else {
+                    removeHighlight(card);
+                }
             } else {
                 card.style.display = 'none';
+                removeHighlight(card);
+            }
+        });
+        
+        // Mostrar/ocultar indicador de resultados de búsqueda
+        if (searchTerm || selectedCategory) {
+            searchResults.style.display = 'block';
+            resultsCount.textContent = visibleCount;
+            
+            // Mostrar mensaje especial si no hay resultados
+            if (visibleCount === 0) {
+                showNoResultsMessage(searchTerm, selectedCategory);
+            } else {
+                hideNoResultsMessage();
+            }
+        } else {
+            searchResults.style.display = 'none';
+            hideNoResultsMessage();
+        }
+    }
+    
+    function highlightSearchTerm(card, searchTerm) {
+        // Resaltar en el título
+        const title = card.querySelector('.kad-product-title');
+        if (title) {
+            highlightTextInElement(title, searchTerm);
+        }
+        
+        // Resaltar en la descripción
+        const description = card.querySelector('.kad-product-desc');
+        if (description) {
+            highlightTextInElement(description, searchTerm);
+        }
+        
+        // Resaltar en la categoría
+        const category = card.querySelector('.kad-product-category');
+        if (category) {
+            highlightTextInElement(category, searchTerm);
+        }
+    }
+    
+    function highlightTextInElement(element, searchTerm) {
+        if (!element.dataset.originalText) {
+            element.dataset.originalText = element.textContent;
+        }
+        
+        const originalText = element.dataset.originalText;
+        const regex = new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi');
+        const highlightedText = originalText.replace(regex, '<mark class="search-highlight">$1</mark>');
+        element.innerHTML = highlightedText;
+    }
+    
+    function removeHighlight(card) {
+        const elementsToUnhighlight = card.querySelectorAll('.kad-product-title, .kad-product-desc, .kad-product-category');
+        elementsToUnhighlight.forEach(element => {
+            if (element.dataset.originalText) {
+                element.textContent = element.dataset.originalText;
             }
         });
     }
     
+    function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    
+    function showNoResultsMessage(searchTerm, category) {
+        let existingMessage = document.getElementById('no-results-message');
+        if (!existingMessage) {
+            const message = document.createElement('div');
+            message.id = 'no-results-message';
+            message.className = 'no-results-message';
+            message.innerHTML = `
+                <div class="no-results-content">
+                    <i class="fas fa-search-minus"></i>
+                    <h3>No se encontraron productos</h3>
+                    <p id="no-results-text"></p>
+                    <div class="search-suggestions">
+                        <p><strong>Sugerencias:</strong></p>
+                        <ul>
+                            <li>Verifica la ortografía</li>
+                            <li>Usa palabras más generales</li>
+                            <li>Prueba con términos diferentes</li>
+                            <li>Revisa otra categoría</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            document.getElementById('products-grid').appendChild(message);
+        }
+        
+        // Actualizar el texto del mensaje
+        const noResultsText = document.getElementById('no-results-text');
+        if (searchTerm && category) {
+            noResultsText.textContent = `No hay productos que coincidan con "${searchTerm}" en la categoría "${category}".`;
+        } else if (searchTerm) {
+            noResultsText.textContent = `No hay productos que coincidan con "${searchTerm}".`;
+        } else if (category) {
+            noResultsText.textContent = `No hay productos en la categoría "${category}".`;
+        }
+    }
+    
+    function hideNoResultsMessage() {
+        const existingMessage = document.getElementById('no-results-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+    }
+    
+    function clearSearch() {
+        searchInput.value = '';
+        categoryFilter.value = '';
+        filterProducts();
+        searchInput.focus();
+    }
+    
+    // Event listeners
     searchInput.addEventListener('input', filterProducts);
     categoryFilter.addEventListener('change', filterProducts);
+    clearSearchBtn.addEventListener('click', clearSearch);
+    
+    // Limpiar búsqueda con Escape
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            clearSearch();
+        }
+    });
+}
+
+function initializeProductTitleTooltips() {
+    // Verificar si los títulos están truncados y ajustar tooltips
+    const productTitles = document.querySelectorAll('.kad-product-title');
+    
+    productTitles.forEach(title => {
+        // Solo mostrar tooltip si el texto está truncado
+        if (title.scrollHeight > title.clientHeight || title.scrollWidth > title.clientWidth) {
+            title.style.cursor = 'help';
+            
+            // Opcional: agregar evento para mostrar tooltip personalizado
+            title.addEventListener('mouseenter', function() {
+                if (this.scrollHeight > this.clientHeight) {
+                    this.setAttribute('data-truncated', 'true');
+                }
+            });
+        } else {
+            // Remover título si no está truncado para evitar tooltip innecesario
+            title.removeAttribute('title');
+        }
+    });
+    
+    // Hacer lo mismo para categorías y descripciones
+    const categories = document.querySelectorAll('.kad-product-category');
+    categories.forEach(category => {
+        if (category.scrollWidth > category.clientWidth) {
+            category.style.cursor = 'help';
+        } else {
+            category.removeAttribute('title');
+        }
+    });
+    
+    const descriptions = document.querySelectorAll('.kad-product-desc');
+    descriptions.forEach(desc => {
+        if (desc.scrollHeight > desc.clientHeight) {
+            desc.style.cursor = 'help';
+        } else {
+            desc.removeAttribute('title');
+        }
+    });
 }
 
 function showQuickView(productId) {

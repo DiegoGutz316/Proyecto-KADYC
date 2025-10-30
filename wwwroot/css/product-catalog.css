@@ -107,6 +107,114 @@
     border-color: #007bff;
 }
 
+/* Indicador de resultados de búsqueda */
+.search-results-indicator {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.search-results-text {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #495057;
+    font-weight: 500;
+}
+
+.clear-search-btn {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.clear-search-btn:hover {
+    background: #e9ecef;
+    color: #495057;
+}
+
+/* Resaltado de búsqueda */
+.search-highlight {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    color: #856404;
+    padding: 0.1em 0.2em;
+    border-radius: 0.2em;
+    font-weight: 600;
+}
+
+/* Mensaje de no resultados */
+.no-results-message {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    padding: 2rem;
+}
+
+.no-results-content {
+    text-align: center;
+    max-width: 500px;
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 1rem;
+    border: 1px solid #dee2e6;
+}
+
+.no-results-content i {
+    font-size: 3rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.no-results-content h3 {
+    color: #495057;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.no-results-content p {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.search-suggestions {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.search-suggestions p {
+    margin: 0 0 0.5rem 0;
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.search-suggestions ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.search-suggestions li {
+    margin-bottom: 0.25rem;
+}
+
 /* Grid de productos mejorado */
 .kad-products-grid {
     display: grid;
@@ -115,7 +223,7 @@
     margin-top: 2rem;
 }
 
-/* Tarjetas de productos mejoradas */
+/* Tarjetas de productos mejoradas - ALTURA FIJA CONSISTENTE */
 .kad-product-card {
     background: #fff;
     border-radius: 1rem;
@@ -124,7 +232,7 @@
     display: flex;
     flex-direction: column;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    height: 500px;
+    height: 520px; /* Altura fija aumentada para acomodar nombres largos */
 }
 
 .kad-product-card:hover {
@@ -136,7 +244,7 @@
 .kad-product-image-container {
     position: relative;
     width: 100%;
-    height: 220px;
+    height: 220px; /* Altura fija para todas las imágenes */
     overflow: hidden;
 }
 
@@ -215,29 +323,46 @@
     font-weight: 600;
 }
 
-/* Información del producto mejorada */
+/* Información del producto mejorada - ALTURA FIJA Y CONTROL DE OVERFLOW */
 .kad-product-info {
     padding: 1.5rem;
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 280px;
+    height: 300px; /* Altura fija para el contenido */
+    min-height: 300px;
 }
 
 .product-header {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    flex-direction: column; /* Cambio a columna para mejor control */
+    gap: 0.5rem;
     margin-bottom: 0.75rem;
+    min-height: 60px; /* Altura mínima para el header */
 }
 
+/* TÍTULO CON CONTROL DE OVERFLOW PARA NOMBRES LARGOS */
 .kad-product-title {
     font-size: 1.1rem;
     font-weight: 700;
     margin: 0;
     line-height: 1.3;
     color: #2c3e50;
-    flex: 1;
+    /* Control de texto largo con ellipsis */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Máximo 2 líneas */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+    height: 2.6em; /* Altura fija para 2 líneas */
+}
+
+/* Tooltip para mostrar nombre completo en hover */
+.kad-product-title[title] {
+    cursor: help;
 }
 
 .kad-product-category {
@@ -249,7 +374,11 @@
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-left: 0.5rem;
+    align-self: flex-start; /* Alineación al inicio */
+    white-space: nowrap; /* Evitar que se rompa */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 .kad-product-desc {
@@ -259,9 +388,11 @@
     flex: 1;
     line-height: 1.5;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 3; /* Máximo 3 líneas */
     -webkit-box-orient: vertical;
     overflow: hidden;
+    text-overflow: ellipsis;
+    height: 4.5em; /* Altura fija para 3 líneas */
 }
 
 .kad-product-meta {
@@ -271,12 +402,14 @@
     margin-bottom: 1rem;
     padding: 0.75rem 0;
     border-top: 1px solid #f1f3f4;
+    min-height: 50px; /* Altura mínima */
 }
 
 .kad-product-price {
     color: #28a745;
     font-weight: 700;
     font-size: 1.25rem;
+    white-space: nowrap; /* Evitar que el precio se rompa */
 }
 
 .stock-indicator {
@@ -285,6 +418,10 @@
     background: #f8f9fa;
     padding: 0.25rem 0.75rem;
     border-radius: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px; /* Ancho máximo para el stock */
 }
 
 .stock-indicator.out-of-stock {
@@ -292,12 +429,13 @@
     background: #f8d7da;
 }
 
-/* Acciones del producto mejoradas */
+/* Acciones del producto mejoradas - ALTURA FIJA */
 .kad-product-actions {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
     margin-top: auto;
+    min-height: 100px; /* Altura mínima para las acciones */
 }
 
 .quantity-selector {
@@ -311,6 +449,7 @@
     font-size: 0.9rem;
     font-weight: 600;
     color: #495057;
+    white-space: nowrap;
 }
 
 .quantity-select {
@@ -335,6 +474,9 @@
     justify-content: center;
     gap: 0.5rem;
     transition: all 0.2s ease;
+    white-space: nowrap; /* Evitar que el texto del botón se rompa */
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .kad-btn--cart {
@@ -376,6 +518,11 @@
 .kad-btn--small {
     padding: 0.5rem 0.75rem;
     font-size: 0.85rem;
+}
+
+/* Texto de botón responsive */
+.btn-text {
+    display: inline;
 }
 
 /* Botón flotante del carrito */
@@ -499,8 +646,42 @@
         gap: 1.5rem;
     }
     
+    /* Ajustes móviles para tarjetas */
     .kad-product-card {
-        height: auto;
+        height: 480px; /* Altura reducida en móviles */
+    }
+    
+    .kad-product-info {
+        height: 260px; /* Altura del contenido reducida en móviles */
+        padding: 1rem;
+    }
+    
+    .product-header {
+        min-height: 50px;
+    }
+    
+    .kad-product-title {
+        font-size: 1rem; /* Título más pequeño en móviles */
+        height: 2.4em;
+    }
+    
+    .kad-product-desc {
+        font-size: 0.85rem;
+        height: 3.8em; /* Altura reducida para descripción */
+        -webkit-line-clamp: 2; /* Solo 2 líneas en móviles */
+    }
+    
+    .kad-product-actions {
+        min-height: 80px;
+    }
+    
+    /* Texto de botón más corto en móviles */
+    .btn-text {
+        display: none;
+    }
+    
+    .kad-btn--cart .btn-text::before {
+        content: "Agregar";
     }
     
     .floating-cart {
@@ -511,5 +692,72 @@
     .floating-cart-btn {
         width: 50px;
         height: 50px;
+    }
+    
+    /* Búsqueda móvil */
+    .search-results-indicator {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    .no-results-content {
+        padding: 1.5rem;
+    }
+    
+    .search-suggestions {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .kad-products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+    
+    .kad-product-card {
+        height: 450px;
+    }
+    
+    .kad-product-info {
+        height: 230px;
+        padding: 0.875rem;
+    }
+    
+    .kad-product-title {
+        font-size: 0.95rem;
+        height: 2.2em;
+    }
+    
+    .kad-product-category {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.6rem;
+    }
+    
+    .kad-product-desc {
+        font-size: 0.8rem;
+        height: 3.2em;
+        -webkit-line-clamp: 2;
+    }
+    
+    .kad-product-price {
+        font-size: 1.1rem;
+    }
+    
+    .stock-indicator {
+        font-size: 0.75rem;
+        max-width: 100px;
+    }
+    
+    .search-input {
+        font-size: 0.9rem;
+        padding: 0.625rem 0.875rem 0.625rem 2.25rem;
+    }
+    
+    .category-select {
+        font-size: 0.9rem;
+        padding: 0.625rem 0.875rem;
+        min-width: 150px;
     }
 }

@@ -1,203 +1,171 @@
-@model Proyecto_v1.Models.Order
+ï»¿@model Proyecto_v1.Models.Order
 
 @{
     ViewData["Title"] = $"Factura #{Model.Id.ToString("D6")} - Vista Administrativa";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<link rel="stylesheet" href="~/css/crud-responsive.css" asp-append-version="true" />
 <link rel="stylesheet" href="~/css/invoice-styles.css" asp-append-version="true" />
-<link rel="stylesheet" href="~/css/admin-orders.css" asp-append-version="true" />
 <link rel="stylesheet" href="~/css/admin-invoice.css" asp-append-version="true" />
 
-<div class="crud-container">
-    <!-- Header Administrativo -->
-    <div class="crud-header" id="admin-header">
-        <h1 class="crud-title">
-            <i class="fas fa-file-invoice"></i>
-            Factura #@Model.Id.ToString("D6")
-            <span class="admin-badge">Vista Administrativa</span>
-        </h1>
-        <div class="crud-actions">
-            <button class="crud-btn crud-btn--primary" onclick="printInvoice()">
-                <i class="fas fa-print"></i>
-                Imprimir
-            </button>
-            <button class="crud-btn crud-btn--outline" onclick="downloadPDF()">
-                <i class="fas fa-file-pdf"></i>
-                Descargar PDF
-            </button>
-            <button class="crud-btn crud-btn--outline" onclick="sendEmailToCustomer('@Model.Customer?.Email', '@Model.Id.ToString("D6")')">
-                <i class="fas fa-envelope"></i>
-                Enviar por Email
-            </button>
-            <a asp-action="AdminDetails" asp-route-id="@Model.Id" class="crud-btn crud-btn--secondary">
-                <i class="fas fa-arrow-left"></i>
-                Volver a Detalles
-            </a>
+<!-- Panel de InformaciÃ³n Administrativa (No se imprime) -->
+<div class="admin-invoice-meta mb-4 no-print">
+    <div class="crud-container">
+        <div class="crud-header">
+            <h1 class="crud-title">
+                <i class="fas fa-file-invoice"></i>
+                Factura #@Model.Id.ToString("D6")
+                <span class="admin-badge">Vista Administrativa</span>
+            </h1>
+            <div class="crud-actions">
+                <button class="crud-btn crud-btn--primary" onclick="printInvoice()">
+                    <i class="fas fa-print"></i>
+                    Imprimir
+                </button>
+                <button class="crud-btn crud-btn--outline" onclick="downloadPDF()">
+                    <i class="fas fa-file-pdf"></i>
+                    Descargar PDF
+                </button>
+                <button class="crud-btn crud-btn--outline" onclick="sendEmailToCustomer('@Model.Customer?.Email', '@Model.Id.ToString("D6")')">
+                    <i class="fas fa-envelope"></i>
+                    Enviar por Email
+                </button>
+                <a asp-action="AdminDetails" asp-route-id="@Model.Id" class="crud-btn crud-btn--secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Volver a Detalles
+                </a>
+            </div>
+        </div>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i>
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <div class="admin-info-panel">
+            <h5><i class="fas fa-info-circle"></i> InformaciÃ³n Administrativa</h5>
+            <div class="admin-meta-grid">
+                <div class="admin-meta-item">
+                    <label>Estado de la Orden:</label>
+                    @{
+                        var statusClass = Model.Status.ToLower() switch
+                        {
+                            "pendiente" => "bg-warning",
+                            "procesando" => "bg-info",
+                            "enviado" => "bg-primary",
+                            "entregado" => "bg-success",
+                            "cancelada" => "bg-danger",
+                            _ => "bg-secondary"
+                        };
+                    }
+                    <span class="badge @statusClass">@Model.Status</span>
+                </div>
+                <div class="admin-meta-item">
+                    <label>Fecha de CreaciÃ³n:</label>
+                    <span>@Model.OrderDate.ToString("dd/MM/yyyy HH:mm:ss")</span>
+                </div>
+                <div class="admin-meta-item">
+                    <label>LÃ­mite de DevoluciÃ³n:</label>
+                    <span>@Model.DevolutionDate.ToString("dd/MM/yyyy")</span>
+                </div>
+                <div class="admin-meta-item">
+                    <label>Cliente ID:</label>
+                    <span>@Model.Customer?.Id</span>
+                </div>
+                <div class="admin-meta-item">
+                    <label>Email del Cliente:</label>
+                    <span>
+                        <a href="mailto:@Model.Customer?.Email" class="email-link">
+                            @Model.Customer?.Email
+                        </a>
+                    </span>
+                </div>
+                <div class="admin-meta-item">
+                    <label>Procesado por:</label>
+                    <span>Sistema Administrativo KADYC</span>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show no-print" role="alert">
-            <i class="fas fa-check-circle"></i>
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show no-print" role="alert">
-            <i class="fas fa-exclamation-triangle"></i>
-            @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
-    <!-- Panel de Información Administrativa -->
-    <div class="admin-invoice-meta mb-4 no-print">
+<!-- Factura Principal (Mismo diseÃ±o que Invoice.cshtml) -->
+<div class="invoice-container" id="invoice-content">
+    <div class="invoice-header">
         <div class="row">
-            <div class="col-md-8">
-                <div class="admin-info-panel">
-                    <h5><i class="fas fa-info-circle"></i> Información Administrativa</h5>
-                    <div class="admin-meta-grid">
-                        <div class="admin-meta-item">
-                            <label>Estado de la Orden:</label>
-                            @{
-                                var statusClass = Model.Status.ToLower() switch
-                                {
-                                    "pendiente" => "bg-warning",
-                                    "procesando" => "bg-info",
-                                    "enviado" => "bg-primary",
-                                    "entregado" => "bg-success",
-                                    "cancelada" => "bg-danger",
-                                    _ => "bg-secondary"
-                                };
-                            }
-                            <span class="badge @statusClass">@Model.Status</span>
-                        </div>
-                        <div class="admin-meta-item">
-                            <label>Fecha de Creación:</label>
-                            <span>@Model.OrderDate.ToString("dd/MM/yyyy HH:mm:ss")</span>
-                        </div>
-                        <div class="admin-meta-item">
-                            <label>Límite de Devolución:</label>
-                            <span>@Model.DevolutionDate.ToString("dd/MM/yyyy")</span>
-                        </div>
-                        <div class="admin-meta-item">
-                            <label>Cliente ID:</label>
-                            <span>@Model.Customer?.Id</span>
-                        </div>
-                        <div class="admin-meta-item">
-                            <label>Email del Cliente:</label>
-                            <span>
-                                <a href="mailto:@Model.Customer?.Email" class="email-link">
-                                    @Model.Customer?.Email
-                                </a>
-                            </span>
-                        </div>
-                        <div class="admin-meta-item">
-                            <label>Procesado por:</label>
-                            <span>Sistema Administrativo KADYC</span>
-                        </div>
+            <div class="col-md-6">
+                <div class="company-info">
+                    <h1 class="company-name">KADYC</h1>
+                    <p class="company-tagline">Moda Minimalista</p>
+                    <div class="company-details">
+                        <p><i class="fas fa-map-marker-alt"></i> San JosÃ©, Costa Rica</p>
+                        <p><i class="fas fa-phone"></i> +506 2222-3333</p>
+                        <p><i class="fas fa-envelope"></i> info@kadyc.com</p>
+                        <p><i class="fas fa-globe"></i> www.kadyc.com</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="admin-actions-panel">
-                    <h5><i class="fas fa-tools"></i> Acciones Rápidas</h5>
-                    <div class="quick-actions">
-                        <form method="post" asp-action="UpdateOrderStatus" class="mb-2">
-                            <input type="hidden" name="orderId" value="@Model.Id">
-                            <div class="input-group">
-                                <select name="newStatus" class="form-control">
-                                    <option value="Pendiente" selected="@(Model.Status == "Pendiente")">Pendiente</option>
-                                    <option value="Procesando" selected="@(Model.Status == "Procesando")">Procesando</option>
-                                    <option value="Enviado" selected="@(Model.Status == "Enviado")">Enviado</option>
-                                    <option value="Entregado" selected="@(Model.Status == "Entregado")">Entregado</option>
-                                    <option value="Cancelada" selected="@(Model.Status == "Cancelada")">Cancelada</option>
-                                </select>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i>
-                                </button>
-                            </div>
-                        </form>
-                        <button class="btn btn-outline-primary btn-sm w-100 mb-2" onclick="addAdminNote()">
-                            <i class="fas fa-sticky-note"></i>
-                            Agregar Nota
-                        </button>
-                        <button class="btn btn-outline-secondary btn-sm w-100" onclick="viewCustomerHistory()">
-                            <i class="fas fa-history"></i>
-                            Historial Cliente
-                        </button>
+            <div class="col-md-6 text-md-end">
+                <div class="invoice-info">
+                    <h2 class="invoice-title">FACTURA</h2>
+                    <div class="invoice-details">
+                        <p><strong>Factura #:</strong> @Model.Id.ToString("D6")</p>
+                        <p><strong>Fecha:</strong> @Model.OrderDate.ToString("dd/MM/yyyy")</p>
+                        <p><strong>Estado:</strong> 
+                            <span class="status-badge status-@Model.Status.ToLower()">@Model.Status</span>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Factura Principal -->
-    <div class="invoice-container" id="invoice-content">
-        <!-- Encabezado de la empresa -->
-        <div class="invoice-header">
-            <div class="company-info">
-                <div class="company-logo">
-                    <h1 class="company-name">KADYC</h1>
-                    <p class="company-tagline">Tienda de Ropa Premium</p>
-                </div>
-                <div class="company-details">
-                    <p><i class="fas fa-map-marker-alt"></i> San José, Costa Rica</p>
-                    <p><i class="fas fa-phone"></i> +506 8888-8888</p>
-                    <p><i class="fas fa-envelope"></i> contacto@kadyc.com</p>
-                    <p><i class="fas fa-globe"></i> www.kadyc.com</p>
+    <div class="invoice-body">
+        <!-- InformaciÃ³n del cliente -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="bill-to">
+                    <h4>Facturar a:</h4>
+                    <div class="customer-info">
+                        <p><strong>@Model.Customer?.FirstName @Model.Customer?.LastName</strong></p>
+                        <p>@Model.Customer?.Email</p>
+                        <p>@Model.Customer?.Address</p>
+                    </div>
                 </div>
             </div>
-            
-            <div class="invoice-meta">
-                <h2 class="invoice-title">FACTURA</h2>
-                <div class="invoice-number">N° @Model.Id.ToString("D6")</div>
-                <div class="invoice-date">
-                    <strong>Fecha:</strong> @Model.OrderDate.ToString("dd/MM/yyyy")
-                </div>
-                <div class="invoice-status">
-                    <strong>Estado:</strong> 
-                    <span class="status-badge @statusClass">@Model.Status</span>
+            <div class="col-md-6">
+                <div class="order-summary">
+                    <h4>Resumen del Pedido:</h4>
+                    <div class="summary-details">
+                        <p><strong>Fecha del Pedido:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+                        <p><strong>Fecha LÃ­mite DevoluciÃ³n:</strong> @Model.DevolutionDate.ToString("dd/MM/yyyy")</p>
+                        <p><strong>Productos:</strong> @Model.OrderDetails?.Count</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Información del cliente -->
-        <div class="invoice-parties">
-            <div class="bill-to">
-                <h3>Facturar a:</h3>
-                <div class="customer-details">
-                    <p><strong>@Model.Customer?.FirstName @Model.Customer?.LastName</strong></p>
-                    <p><i class="fas fa-envelope"></i> @Model.Customer?.Email</p>
-                    <p><i class="fas fa-map-marker-alt"></i> @Model.Customer?.Address</p>
-                    <p><i class="fas fa-id-card"></i> ID: @Model.Customer?.Id</p>
-                </div>
-            </div>
-            
-            <div class="ship-to">
-                <h3>Enviar a:</h3>
-                <div class="shipping-details">
-                    <p><strong>@Model.Customer?.FirstName @Model.Customer?.LastName</strong></p>
-                    <p><i class="fas fa-map-marker-alt"></i> @Model.Customer?.Address</p>
-                    <p><i class="fas fa-truck"></i> Envío: <span class="free-shipping">GRATIS</span></p>
-                    <p><i class="fas fa-clock"></i> Entrega estimada: 3-5 días hábiles</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Detalles de productos -->
-        <div class="invoice-items">
-            <table class="items-table">
-                <thead>
+        <!-- Tabla de productos -->
+        <div class="products-table">
+            <table class="table table-bordered">
+                <thead class="table-dark">
                     <tr>
+                        <th>#</th>
                         <th>Producto</th>
-                        <th>Descripción</th>
+                        <th>CategorÃ­a</th>
                         <th>Precio Unit.</th>
                         <th>Cantidad</th>
                         <th>Subtotal</th>
@@ -206,35 +174,22 @@
                 <tbody>
                     @if (Model.OrderDetails?.Any() == true)
                     {
-                        @foreach (var detail in Model.OrderDetails)
+                        @for (int i = 0; i < Model.OrderDetails.Count; i++)
                         {
+                            var detail = Model.OrderDetails.ElementAt(i);
                             <tr>
+                                <td>@(i + 1)</td>
                                 <td>
-                                    <div class="product-item">
-                                        @if (!string.IsNullOrEmpty(detail.Product?.ImageUrl))
-                                        {
-                                            <img src="@detail.Product.ImageUrl" alt="@detail.Product?.Name" class="product-image-invoice">
-                                        }
-                                        <div class="product-info">
-                                            <strong>@detail.Product?.Name</strong>
-                                            <small>Categoría: @detail.Product?.Category?.Name</small>
-                                            @if (!string.IsNullOrEmpty(detail.Product?.Size))
-                                            {
-                                                <small>Talla: @detail.Product.Size</small>
-                                            }
-                                        </div>
-                                    </div>
+                                    <strong>@detail.Product?.Name</strong>
+                                    @if (!string.IsNullOrEmpty(detail.Product?.Size))
+                                    {
+                                        <br><small class="text-muted">Talla: @detail.Product.Size</small>
+                                    }
                                 </td>
-                                <td>
-                                    <div class="product-description">
-                                        @detail.Product?.Description
-                                        <br>
-                                        <small class="text-muted">SKU: PRD-@detail.ProductId.ToString("D4")</small>
-                                    </div>
-                                </td>
-                                <td class="price-cell">?@detail.Price.ToString("N0")</td>
-                                <td class="quantity-cell">@detail.Quantity</td>
-                                <td class="subtotal-cell">?@detail.SubTotal.ToString("N0")</td>
+                                <td>@detail.Product?.Category?.Name</td>
+                                <td>â‚¡@detail.Price.ToString("N0")</td>
+                                <td class="text-center">@detail.Quantity</td>
+                                <td>â‚¡@detail.SubTotal.ToString("N0")</td>
                             </tr>
                         }
                     }
@@ -243,160 +198,122 @@
         </div>
 
         <!-- Totales -->
-        <div class="invoice-totals">
-            <div class="totals-section">
-                <div class="totals-row">
-                    <span class="totals-label">Subtotal:</span>
-                    <span class="totals-value">?@Model.SubTotal.ToString("N0")</span>
-                </div>
-                <div class="totals-row">
-                    <span class="totals-label">IVA (13%):</span>
-                    <span class="totals-value">?@Model.IVA.ToString("N0")</span>
-                </div>
-                <div class="totals-row">
-                    <span class="totals-label">Envío:</span>
-                    <span class="totals-value free-shipping">GRATIS</span>
-                </div>
-                <div class="totals-row totals-row--final">
-                    <span class="totals-label">Total a Pagar:</span>
-                    <span class="totals-value">?@Model.Total.ToString("N0")</span>
+        <div class="row">
+            <div class="col-md-8"></div>
+            <div class="col-md-4">
+                <div class="totals-section">
+                    <table class="table table-sm">
+                        <tr>
+                            <td><strong>Subtotal:</strong></td>
+                            <td class="text-end">â‚¡@Model.SubTotal.ToString("N0")</td>
+                        </tr>
+                        <tr>
+                            <td><strong>IVA (13%):</strong></td>
+                            <td class="text-end">â‚¡@Model.IVA.ToString("N0")</td>
+                        </tr>
+                        <tr class="table-dark">
+                            <td><strong>TOTAL:</strong></td>
+                            <td class="text-end"><strong>â‚¡@Model.Total.ToString("N0")</strong></td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- Información adicional y términos -->
+        <!-- InformaciÃ³n adicional -->
         <div class="invoice-footer">
-            <div class="footer-sections">
-                <div class="payment-info">
-                    <h4>Información de Pago</h4>
-                    <p><strong>Método:</strong> Pago contra entrega</p>
-                    <p><strong>Moneda:</strong> Colones Costarricenses (CRC)</p>
-                    <p><strong>Fecha de vencimiento:</strong> @Model.DevolutionDate.ToString("dd/MM/yyyy")</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="payment-info">
+                        <h5>InformaciÃ³n de Pago:</h5>
+                        <p><strong>MÃ©todo de Pago:</strong> Procesado Online</p>
+                        <p><strong>Estado del Pago:</strong> 
+                            @if (Model.Status == "Entregado" || Model.Status == "Enviado")
+                            {
+                                <span class="text-success">Pagado</span>
+                            }
+                            else if (Model.Status == "Cancelada")
+                            {
+                                <span class="text-danger">Cancelado</span>
+                            }
+                            else
+                            {
+                                <span class="text-warning">Pendiente</span>
+                            }
+                        </p>
+                    </div>
                 </div>
-                
-                <div class="terms-info">
-                    <h4>Términos y Condiciones</h4>
-                    <ul>
-                        <li>Devoluciones aceptadas hasta 30 días después de la entrega</li>
-                        <li>Productos deben estar en perfecto estado</li>
-                        <li>Envío gratuito a toda Costa Rica</li>
-                        <li>Tiempo de entrega: 3-5 días hábiles</li>
-                    </ul>
+                <div class="col-md-6">
+                    <div class="return-policy">
+                        <h5>PolÃ­tica de DevoluciÃ³n:</h5>
+                        <p>Tienes hasta <strong>30 dÃ­as</strong> desde la fecha de compra para devolver productos no utilizados.</p>
+                        <p>Fecha lÃ­mite: <strong>@Model.DevolutionDate.ToString("dd/MM/yyyy")</strong></p>
+                    </div>
                 </div>
             </div>
             
-            <div class="invoice-notes">
-                <h4>Notas Administrativas</h4>
-                <div class="admin-notes">
-                    <p><strong>Procesado:</strong> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
-                    <p><strong>Estado:</strong> @Model.Status</p>
-                    <p><strong>Cliente verificado:</strong> ?</p>
-                    <p><strong>Stock verificado:</strong> ?</p>
+            <!-- Nota administrativa adicional (solo visible para admin) -->
+           @*  <div class="admin-note no-print">
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-user-shield"></i> Nota Administrativa</h6>
+                    <p><strong>Procesado por:</strong> Sistema Administrativo KADYC</p>
+                    <p><strong>Fecha de generaciÃ³n:</strong> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><strong>Cliente ID:</strong> @Model.Customer?.Id</p>
                 </div>
-            </div>
+            </div> *@
             
-            <div class="company-footer">
-                <div class="footer-logo">
-                    <h3>KADYC</h3>
-                    <p>Gracias por tu preferencia</p>
-                </div>
-                <div class="footer-contact">
-                    <p>Para consultas sobre esta factura:</p>
-                    <p><i class="fas fa-phone"></i> +506 8888-8888</p>
-                    <p><i class="fas fa-envelope"></i> facturacion@kadyc.com</p>
-                </div>
+            <div class="thank-you">
+                <hr>
+                <p class="text-center"><strong>Â¡Gracias por tu compra en KADYC!</strong></p>
+                <p class="text-center text-muted">Si tienes alguna pregunta sobre esta factura, contÃ¡ctanos en info@kadyc.com</p>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modal para notas administrativas -->
-<div class="modal fade no-print" id="adminNoteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Agregar Nota Administrativa</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="noteText" class="form-label">Nota:</label>
-                    <textarea class="form-control" id="noteText" rows="4" placeholder="Agregar nota sobre esta orden..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="noteType" class="form-label">Tipo de nota:</label>
-                    <select class="form-control" id="noteType">
-                        <option value="general">General</option>
-                        <option value="importante">Importante</option>
-                        <option value="problema">Problema</option>
-                        <option value="resuelto">Resuelto</option>
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="saveAdminNote()">Guardar Nota</button>
-            </div>
-        </div>
+    <!-- Botones de acciÃ³n administrativos -->
+    <div class="invoice-actions no-print">
+        <button onclick="printInvoice()" class="btn btn-primary btn-lg">
+            <i class="fas fa-print"></i> Imprimir Factura
+        </button>
+        <button onclick="downloadPDF()" class="btn btn-success btn-lg">
+            <i class="fas fa-download"></i> Descargar PDF
+        </button>
+        <button onclick="sendEmailToCustomer('@Model.Customer?.Email', '@Model.Id.ToString("D6")')" class="btn btn-warning btn-lg">
+            <i class="fas fa-envelope"></i> Enviar a Cliente
+        </button>
+        <a asp-action="AdminDetails" asp-route-id="@Model.Id" class="btn btn-outline-secondary btn-lg">
+            <i class="fas fa-arrow-left"></i> Volver a Detalles
+        </a>
+        <a asp-action="AdminOrders" class="btn btn-outline-primary btn-lg">
+            <i class="fas fa-list"></i> Panel de Ã“rdenes
+        </a>
     </div>
 </div>
 
 <script>
 function printInvoice() {
-    const printContent = document.getElementById('invoice-content');
-    const originalContent = document.body.innerHTML;
-    
-    // Crear estilos específicos para impresión
-    const printStyles = `
-        <style>
-            body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-            .invoice-container { max-width: 100%; margin: 0; box-shadow: none; }
-            .admin-badge { display: none; }
-            .no-print { display: none !important; }
-        </style>
-    `;
-    
-    document.body.innerHTML = printStyles + printContent.outerHTML;
     window.print();
-    document.body.innerHTML = originalContent;
-    location.reload(); // Recargar para restaurar eventos
 }
 
 function downloadPDF() {
-    alert('Función de descarga PDF en desarrollo. Se generaría un PDF de la factura.');
+    alert('Funcionalidad de descarga PDF en desarrollo. Por ahora puedes usar "Imprimir" y seleccionar "Guardar como PDF".');
 }
 
 function sendEmailToCustomer(email, orderNumber) {
     if (email) {
         const subject = `Factura de tu orden ${orderNumber} - KADYC`;
-        const body = `Estimado cliente,\n\nAdjunto encontrarás la factura de tu orden ${orderNumber}.\n\nGracias por tu compra.\n\nSaludos,\nEquipo KADYC`;
+        const body = `Estimado cliente,\n\nAdjunto encontrarÃ¡s la factura de tu orden ${orderNumber}.\n\nGracias por tu compra.\n\nSaludos,\nEquipo KADYC`;
         window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     } else {
         alert('Email del cliente no disponible.');
     }
 }
 
-function addAdminNote() {
-    const modal = new bootstrap.Modal(document.getElementById('adminNoteModal'));
-    modal.show();
-}
-
-function saveAdminNote() {
-    const noteText = document.getElementById('noteText').value;
-    const noteType = document.getElementById('noteType').value;
-    
-    if (noteText.trim()) {
-        // Aquí iría la lógica para guardar la nota
-        alert(`Nota ${noteType} guardada: ${noteText}`);
-        
-        const modal = bootstrap.Modal.getInstance(document.getElementById('adminNoteModal'));
-        modal.hide();
-    } else {
-        alert('Por favor ingresa una nota.');
-    }
-}
-
-function viewCustomerHistory() {
-    alert('Función de historial del cliente en desarrollo.');
+// Auto-print si viene de un parÃ¡metro de URL
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('print') === 'true') {
+    window.onload = function() {
+        window.print();
+    };
 }
 </script>
