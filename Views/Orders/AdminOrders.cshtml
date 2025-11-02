@@ -195,6 +195,7 @@
                         @foreach (var order in Model)
                         {
                             <tr class="admin-order-row" 
+                                data-order-id="@order.Id"
                                 data-status="@order.Status.ToLower()" 
                                 data-customer="@order.Customer?.FirstName @order.Customer?.LastName"
                                 data-customer-email="@order.Customer?.Email"
@@ -290,8 +291,9 @@
                                                 onclick="sendEmailToCustomer('@order.Customer?.Email', '@order.Id.ToString("D6")')">
                                             <i class="fas fa-envelope"></i>
                                         </button>
-                                        <button class="action-btn action-btn--delete" title="Eliminar orden" 
-                                                onclick="deleteOrder(@order.Id)"
+                                        <button class="action-btn action-btn--delete @(order.Status != "Cancelada" ? "disabled" : "")" 
+                                                title="@(order.Status != "Cancelada" ? "Solo se pueden eliminar órdenes canceladas" : "Eliminar orden")" 
+                                                onclick="deleteOrder(@order.Id, '@order.Id.ToString("D6")')"
                                                 @(order.Status != "Cancelada" ? "disabled" : "")>
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -321,6 +323,10 @@
                         <i class="fas fa-envelope"></i>
                         Enviar Emails
                     </button>
+                    <button class="bulk-btn bulk-btn--delete" onclick="bulkDelete()">
+                        <i class="fas fa-trash"></i>
+                        Eliminar Seleccionadas
+                    </button>
                 </div>
             </div>
         </div>
@@ -346,16 +352,42 @@
             <div class="modal-body">
                 <p>Selecciona el nuevo estado para las órdenes seleccionadas:</p>
                 <select class="form-control" id="bulkNewStatus">
-                    <option value="Pendiente">?? Pendiente</option>
-                    <option value="Procesando">?? Procesando</option>
-                    <option value="Enviado">?? Enviado</option>
-                    <option value="Entregado">? Entregado</option>
-                    <option value="Cancelada">? Cancelada</option>
+                    <option value="Pendiente">⏰ Pendiente</option>
+                    <option value="Procesando">⚙️ Procesando</option>
+                    <option value="Enviado">🚛 Enviado</option>
+                    <option value="Entregado">✅ Entregado</option>
+                    <option value="Cancelada">❌ Cancelada</option>
                 </select>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-primary" onclick="applyBulkStatus()">Aplicar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminación -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>¡Atención!</strong> Esta acción no se puede deshacer.
+                </div>
+                <p id="deleteConfirmMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i>
+                    Eliminar
+                </button>
             </div>
         </div>
     </div>
@@ -520,11 +552,156 @@ function sendEmailToCustomer(email, orderNumber) {
     }
 }
 
-function deleteOrder(orderId) {
-    if (confirm('¿Estás seguro de que quieres eliminar esta orden? Esta acción no se puede deshacer.')) {
-        // Aquí iría la lógica para eliminar la orden
-        alert('Función de eliminación en desarrollo.');
+function deleteOrder(orderId, orderNumber) {
+    const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    const confirmMessage = document.getElementById('deleteConfirmMessage');
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    
+    confirmMessage.textContent = `¿Estás seguro de que quieres eliminar la orden #${orderNumber}?`;
+    
+    confirmBtn.onclick = function() {
+        performDeleteOrder(orderId, orderNumber);
+        modal.hide();
+    };
+    
+    modal.show();
+}
+
+function performDeleteOrder(orderId, orderNumber) {
+    const btn = document.getElementById('confirmDeleteBtn');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+    btn.disabled = true;
+    
+    fetch('@Url.Action("DeleteOrder", "Orders")', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+        },
+        body: `orderId=${orderId}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remover la fila de la tabla
+            const row = document.querySelector(`tr[data-order-id="${orderId}"]`);
+            if (row) {
+                row.remove();
+            }
+            
+            // Mostrar mensaje de éxito
+            showAlert('success', data.message);
+            
+            // Actualizar contador de resultados
+            updateResultsCount();
+        } else {
+            showAlert('danger', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', 'Error al eliminar la orden. Por favor intenta nuevamente.');
+    })
+    .finally(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    });
+}
+
+function bulkDelete() {
+    const selected = Array.from(document.querySelectorAll('.order-checkbox:checked'));
+    
+    if (selected.length === 0) {
+        alert('Selecciona al menos una orden para eliminar.');
+        return;
     }
+    
+    const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    const confirmMessage = document.getElementById('deleteConfirmMessage');
+    const confirmBtn = document.getElementById('confirmDeleteBtn');
+    
+    confirmMessage.textContent = `¿Estás seguro de que quieres eliminar ${selected.length} órdenes seleccionadas? Solo se eliminarán las órdenes canceladas.`;
+    
+    confirmBtn.onclick = function() {
+        performBulkDelete(selected.map(cb => parseInt(cb.value)));
+        modal.hide();
+    };
+    
+    modal.show();
+}
+
+function performBulkDelete(orderIds) {
+    const btn = document.getElementById('confirmDeleteBtn');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+    btn.disabled = true;
+    
+    fetch('@Url.Action("BulkDeleteOrders", "Orders")', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+        },
+        body: JSON.stringify(orderIds)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remover las filas eliminadas
+            orderIds.forEach(orderId => {
+                const row = document.querySelector(`tr[data-order-id="${orderId}"]`);
+                if (row) {
+                    row.remove();
+                }
+            });
+            
+            // Limpiar selecciones
+            document.getElementById('selectAll').checked = false;
+            document.getElementById('bulkActions').style.display = 'none';
+            
+            showAlert('success', data.message);
+            updateResultsCount();
+        } else {
+            showAlert('danger', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showAlert('danger', 'Error al eliminar las órdenes seleccionadas.');
+    })
+    .finally(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    });
+}
+
+function updateResultsCount() {
+    const visibleRows = document.querySelectorAll('.admin-order-row[style=""], .admin-order-row:not([style])');
+    document.getElementById('results-summary').textContent = `Mostrando ${visibleRows.length} órdenes`;
+}
+
+function showAlert(type, message) {
+    const alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    const alertContainer = document.querySelector('.crud-header');
+    alertContainer.insertAdjacentHTML('afterend', alertHtml);
+    
+    // Auto-remove después de 5 segundos
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) {
+            alert.remove();
+        }
+    }, 5000);
 }
 
 function bulkUpdateStatus() {
