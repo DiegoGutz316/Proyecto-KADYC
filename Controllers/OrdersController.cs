@@ -201,6 +201,111 @@ namespace Proyecto_v1.Controllers
             }
         }
 
+        // POST: Orders/DeleteOrder - Eliminar una orden (solo administradores)
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> DeleteOrder(int orderId)
+        {
+            try
+            {
+                var order = await _context.Orders
+                    .Include(o => o.OrderDetails)
+                        .ThenInclude(od => od.Product)
+                    .FirstOrDefaultAsync(o => o.Id == orderId);
+
+                if (order == null)
+                {
+                    return Json(new { success = false, message = "Orden no encontrada." });
+                }
+
+                // Solo permitir eliminar órdenes canceladas
+                if (order.Status != "Cancelada")
+                {
+                    return Json(new { success = false, message = "Solo se pueden eliminar órdenes canceladas." });
+                }
+
+                // Verificar si ya se restauró el stock (por si acaso)
+                // En una orden cancelada, el stock ya debería estar restaurado
+                
+                // Eliminar los detalles de la orden primero
+                _context.OrderDetails.RemoveRange(order.OrderDetails);
+                
+                // Eliminar la orden
+                _context.Orders.Remove(order);
+                
+                await _context.SaveChangesAsync();
+
+                return Json(new { 
+                    success = true, 
+                    message = $"Orden #{order.Id.ToString("D6")} eliminada exitosamente." 
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { 
+                    success = false, 
+                    message = "Error al eliminar la orden. Por favor intenta nuevamente." 
+                });
+            }
+        }
+
+        // POST: Orders/BulkDeleteOrders - Eliminar múltiples órdenes (solo administradores)
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> BulkDeleteOrders([FromBody] List<int> orderIds)
+        {
+            try
+            {
+                if (orderIds == null || !orderIds.Any())
+                {
+                    return Json(new { success = false, message = "No se seleccionaron órdenes para eliminar." });
+                }
+
+                var orders = await _context.Orders
+                    .Include(o => o.OrderDetails)
+                    .Where(o => orderIds.Contains(o.Id))
+                    .ToListAsync();
+
+                if (!orders.Any())
+                {
+                    return Json(new { success = false, message = "No se encontraron las órdenes seleccionadas." });
+                }
+
+                // Verificar que todas las órdenes estén canceladas
+                var nonCancelledOrders = orders.Where(o => o.Status != "Cancelada").ToList();
+                if (nonCancelledOrders.Any())
+                {
+                    var nonCancelledIds = string.Join(", ", nonCancelledOrders.Select(o => $"#{o.Id.ToString("D6")}"));
+                    return Json(new { 
+                        success = false, 
+                        message = $"Las siguientes órdenes no están canceladas y no se pueden eliminar: {nonCancelledIds}" 
+                    });
+                }
+
+                // Eliminar los detalles de todas las órdenes
+                var allOrderDetails = orders.SelectMany(o => o.OrderDetails).ToList();
+                _context.OrderDetails.RemoveRange(allOrderDetails);
+
+                // Eliminar las órdenes
+                _context.Orders.RemoveRange(orders);
+
+                await _context.SaveChangesAsync();
+
+                return Json(new { 
+                    success = true, 
+                    message = $"{orders.Count} órdenes eliminadas exitosamente.",
+                    deletedCount = orders.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { 
+                    success = false, 
+                    message = "Error al eliminar las órdenes seleccionadas. Por favor intenta nuevamente." 
+                });
+            }
+        }
+
         // GET: Orders/Details/5 - Ver detalles de una orden específica
         public async Task<IActionResult> Details(int? id)
         {
