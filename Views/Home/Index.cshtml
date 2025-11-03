@@ -9,11 +9,11 @@
 <html lang="es">
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>@ViewData["Title"]</title>
-  <meta name="description"
-    content="KADYC: tienda minimalista (hombres y mujeres), nueva y segunda mano. Portada editorial." />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+    <meta name="description"
+          content="KADYC: tienda minimalista (hombres y mujeres), nueva y segunda mano. Portada editorial." />
     <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/featured-products.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -22,554 +22,653 @@
 <body>
     <!-- Botón flotante para formulario de contacto y catalogo -->
     <div class="kad-floating-form-cta">
-      <a class="kad-btn kad-btn--solid" href="#featured-products" aria-label="Ver productos destacados">Ver destacados</a>
-      <button id="open-contact-form" class="kad-btn kad-btn--outline" aria-label="Abrir formulario de contacto">Contáctanos</button>
-      @if (User.Identity.IsAuthenticated)
-      {
-        <a class="kad-btn kad-btn--solid" asp-controller="Home" asp-action="ViewProducts">Todos los Productos</a>
-      }
-      else
-      {
-        <a class="kad-btn kad-btn--solid" asp-area="Identity" asp-page="/Account/Login">Iniciar Sesión</a>
-      }
+        <a class="kad-btn kad-btn--solid" href="#featured-products" aria-label="Ver productos destacados">Ver destacados</a>
+        <button id="open-contact-form" class="kad-btn kad-btn--outline" aria-label="Abrir formulario de contacto">Contáctanos</button>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a class="kad-btn kad-btn--solid" asp-controller="Home" asp-action="ViewProducts">Todos los Productos</a>
+        }
+        else
+        {
+            <a class="kad-btn kad-btn--solid" asp-area="Identity" asp-page="/Account/Login">Iniciar Sesión</a>
+        }
     </div>
 
     <div id="kad-form-modal" class="kad-form-modal" style="display:none;">
-      <div class="kad-form-modal__backdrop"></div>
-      <div class="kad-form-modal__content">
-        <button id="close-contact-form" class="kad-btn kad-btn--ghost" style="float:right">×</button>
-        <form id="kad-form" class="kad-form" novalidate>
-          <div class="kad-field">
-            <label for="kad-nombre">Nombre *</label>
-            <input id="kad-nombre" name="nombre" required minlength="2" autocomplete="name">
-            <small class="kad-error" aria-live="polite"></small>
-          </div>
-          <div class="kad-field">
-            <label for="kad-correo">Correo *</label>
-            <input id="kad-correo" name="correo" type="email" required autocomplete="email">
-            <small class="kad-error" aria-live="polite"></small>
-          </div>
-          <div class="kad-field">
-            <label for="kad-tel">Teléfono *</label>
-            <input id="kad-tel" name="tel" type="tel" required pattern="\+?\d{7,15}" autocomplete="tel">
-            <small class="kad-error" aria-live="polite"></small>
-          </div>
-          <div class="kad-field">
-            <label for="kad-msg">Mensaje *</label>
-            <textarea id="kad-msg" name="msg" required minlength="10" rows="4"></textarea>
-            <small class="kad-error" aria-live="polite"></small>
-          </div>
-          <div class="kad-field" style="position:absolute;left:-9999px">
-            <label for="kad-company">Company</label>
-            <input id="kad-company" name="company" type="text" tabindex="-1" autocomplete="off">
-          </div>
-          
-          <button class="kad-btn kad-btn--solid" type="submit">Enviar</button>
-          <div id="kad-status" aria-live="polite"></div>
-        </form>
-      </div>
-    </div>
-  <!-- TOP BAR -->
-  <div class="topbar" role="navigation" aria-label="Barra superior">
-    <button class="burger" title="Menú" aria-label="Abrir menú" aria-controls="site-menu" aria-expanded="false">
-      <span></span><span></span><span></span>
-    </button>
-
-    <div class="logo" aria-label="KADYC logo">KADYC</div>
-    <div class="right">
-      @if (User.Identity.IsAuthenticated)
-      {
-        <span>Hola, @User.Identity.Name</span>
-        @if (User.IsInRole("Admin"))
-        {
-          <a asp-area="" asp-controller="Categories" asp-action="Index">Categorías</a>
-          <a asp-area="" asp-controller="Products" asp-action="Index">Productos</a>
-        }
-        <a asp-controller="Cart" asp-action="Index" class="cart-link">
-          <i class="fas fa-shopping-cart"></i> CESTA <span id="cart-count">[0]</span>
-        </a>
-        <form method="post" asp-area="Identity" asp-page="/Account/Logout" style="display:inline;">
-          <button type="submit" class="btn-link" style="border:none; background:none; text-decoration:underline; cursor:pointer;">CERRAR SESIÓN</button>
-        </form>
-      }
-      else
-      {
-        <a asp-area="Identity" asp-page="/Account/Login">INICIAR SESIÓN</a>
-        <a asp-area="Identity" asp-page="/Account/Register">REGISTRO</a>
-        <a href="javascript:void(0)" onclick="showLoginRequired()" class="cart-link-disabled">
-          <i class="fas fa-shopping-cart"></i> CESTA [0]
-        </a>
-      }
-    </div>
-  </div>
-
-  <!-- Drawer -->
-  <div class="menu-backdrop" hidden></div>
-  <aside id="site-menu" class="drawer" aria-hidden="true">
-    <div class="drawer-header">
-      <div class="logo">KADYC</div>
-      <button class="drawer-close" aria-label="Cerrar menú">X</button>
-    </div>
-    <nav class="drawer-nav" aria-label="Menú principal">
-      @if (User.Identity.IsAuthenticated)
-      {
-        <a asp-controller="Home" asp-action="ViewProducts" data-link>VER PRODUCTOS</a>
-        <a asp-controller="Cart" asp-action="Index" data-link>
-          <i class="fas fa-shopping-cart"></i> MI CARRITO <span id="cart-count-drawer">[0]</span>
-        </a>
-        @if (User.IsInRole("Admin"))
-        {
-          <a asp-controller="Products" asp-action="Index" data-link>GESTIONAR PRODUCTOS</a>
-          <a asp-controller="Categories" asp-action="Index" data-link>GESTIONAR CATEGORÍAS</a>
-        }
-      }
-      else
-      {
-        <a asp-area="Identity" asp-page="/Account/Login" data-link>INICIAR SESIÓN</a>
-        <a asp-area="Identity" asp-page="/Account/Register" data-link>REGISTRARSE</a>
-        <a href="javascript:void(0)" onclick="showLoginRequired()" data-link>
-          <i class="fas fa-shopping-cart"></i> MI CARRITO
-        </a>
-      }
-      <a href="#mujer" data-link>MUJER</a>
-      <a href="#hombre" data-link>HOMBRE</a>
-      <a href="#segunda" data-link>SEGUNDA MANO</a>
-      <a href="#novedades" data-link>NOVEDADES</a>
-    </nav>
-  </aside>
-
-  <!-- PRIMERA VISTA -->
-  <section class="intro" id="inicio" aria-labelledby="main-title">
-    <div class="intro-center">
-      <div class="kicker">DESPLÁZATE HACIA ABAJO</div>
-      <h1 id="main-title" class="title">THE NEW</h1>
-      <div class="scroll-wrap">
-        <div class="scroll-indicator"></div>
-      </div>
-    </div>
-    <div class="newsletter-mini">ÚNETE A NUESTRA NEWSLETTER</div>
-  </section>
-
-  <!-- DOBLE HERO -->
-  <main class="hero" id="hero">
-    <div class="hero-grid">
-      <div>
-        <div class="frame" style="
-              background-image: url('https://i.pinimg.com/736x/32/a7/8d/32a78deb4fea51fe7c52213cbfb525ca.jpg');
-            " role="img" aria-label="Editorial look 1"></div>
-      </div>
-      <div>
-        <div class="frame" style="
-              background-image: url('https://i.pinimg.com/736x/d3/9a/1b/d39a1bde4cffa143b3fa2d506abcd61a.jpg');
-            " role="img" aria-label="Editorial look 2"></div>
-        <div class="caption">
-          THE NEW · KADYC COLLECTION · FALL/WINTER 2025
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <!-- SECCIÓN DE PRODUCTOS DESTACADOS -->
-  <section class="featured-products" id="featured-products">
-    <div class="kad-wrap">
-      <header class="featured-header">
-        <h2 class="featured-title">Productos Destacados</h2>
-        <p class="featured-subtitle">Descubre nuestras piezas más populares y nuevas llegadas</p>
-      </header>
-      
-      @if (Model != null && Model.Any())
-      {
-        <div class="featured-grid">
-          @foreach (var producto in Model)
-          {
-            <article class="featured-card" data-category="@producto.Category?.Name">
-              <div class="featured-image">
-                @if (!string.IsNullOrEmpty(producto.ImageUrl))
-                {
-                  <img src="@producto.ImageUrl" alt="@producto.Name" loading="lazy">
-                }
-                else
-                {
-                  <div class="featured-placeholder">
-                    <i class="fas fa-image"></i>
-                  </div>
-                }
-                <div class="featured-overlay">
-                  @if (User.Identity.IsAuthenticated)
-                  {
-                    <form method="post" asp-controller="Cart" asp-action="AddToCart" class="add-to-cart-quick">
-                      <input type="hidden" name="productId" value="@producto.Id">
-                      <input type="hidden" name="quantity" value="1">
-                      <button type="submit" class="quick-add-btn" title="Agregar al carrito">
-                        <i class="fas fa-shopping-cart"></i>
-                      </button>
-                    </form>
-                  }
-                  <a href="@Url.Action("DetallesProducto", "Home", new { id = producto.Id })" class="quick-view-btn" title="Ver detalles">
-                    <i class="fas fa-eye"></i>
-                  </a>
+        <div class="kad-form-modal__backdrop"></div>
+        <div class="kad-form-modal__content">
+            <button id="close-contact-form" class="kad-btn kad-btn--ghost" style="float:right">×</button>
+            <form id="kad-form" class="kad-form" novalidate>
+                <div class="kad-field">
+                    <label for="kad-nombre">Nombre *</label>
+                    <input id="kad-nombre" name="nombre" required minlength="2" autocomplete="name">
+                    <small class="kad-error" aria-live="polite"></small>
                 </div>
-              </div>
-              <div class="featured-info">
-                <span class="featured-category">@producto.Category?.Name</span>
-                <h3 class="featured-name">@producto.Name</h3>
-                <p class="featured-description">@producto.Description</p>
-                <div class="featured-price-wrapper">
-                  <span class="featured-price">₡@producto.Price.ToString("N0")</span>
-                  @if (producto.Stock > 0)
-                  {
-                    <span class="featured-stock">@producto.Stock disponibles</span>
-                  }
-                  else
-                  {
-                    <span class="featured-stock out-of-stock">Agotado</span>
-                  }
+                <div class="kad-field">
+                    <label for="kad-correo">Correo *</label>
+                    <input id="kad-correo" name="correo" type="email" required autocomplete="email">
+                    <small class="kad-error" aria-live="polite"></small>
                 </div>
-              </div>
-            </article>
-          }
+                <div class="kad-field">
+                    <label for="kad-tel">Teléfono *</label>
+                    <input id="kad-tel" name="tel" type="tel" required pattern="\+?\d{7,15}" autocomplete="tel">
+                    <small class="kad-error" aria-live="polite"></small>
+                </div>
+                <div class="kad-field">
+                    <label for="kad-msg">Mensaje *</label>
+                    <textarea id="kad-msg" name="msg" required minlength="10" rows="4"></textarea>
+                    <small class="kad-error" aria-live="polite"></small>
+                </div>
+                <div class="kad-field" style="position:absolute;left:-9999px">
+                    <label for="kad-company">Company</label>
+                    <input id="kad-company" name="company" type="text" tabindex="-1" autocomplete="off">
+                </div>
+
+                <button class="kad-btn kad-btn--solid" type="submit">Enviar</button>
+                <div id="kad-status" aria-live="polite"></div>
+            </form>
         </div>
-        
-        <div class="featured-cta">
-          @if (User.Identity.IsAuthenticated)
-          {
-            <a href="@Url.Action("ViewProducts", "Home")" class="kad-btn kad-btn--outline kad-btn--large">
-              Ver Todos los Productos
-            </a>
-          }
-          else
-          {
-            <a href="@Url.Page("/Account/Login", new { area = "Identity" })" class="kad-btn kad-btn--outline kad-btn--large">
-              Iniciar Sesión para Ver Más
-            </a>
-          }
-        </div>
-      }
-      else
-      {
-        <div class="featured-empty">
-          <i class="fas fa-box-open"></i>
-          <h3>Próximamente</h3>
-          <p>Estamos preparando increíbles productos para ti. ¡Vuelve pronto!</p>
-        </div>
-      }
     </div>
-  </section>
+    <!-- TOP BAR -->
+    <div class="topbar" role="navigation" aria-label="Barra superior">
+        <button class="burger" title="Menú" aria-label="Abrir menú" aria-controls="site-menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
 
-  <script src="~/js/script.js" asp-append-version="true"></script>
-  <!-- Testimonios/Confianza -->
-  <section id="confianza" class="kad-section">
-    <div class="kad-wrap">
-      <header>
-        <h2>Comentarios destacados de nuestros clientes</h2>
-
-      </header>
-      <div class="kad-testimonials-grid">
-        <article class="kad-testimonial-card">
-          <p class="kad-testimonial-text">"¡Increíble calidad y servicio! Encontré piezas únicas que no hallaba en
-            ningún otro lugar. KADYC es mi nueva tienda favorita."</p>
-          <p class="kad-testimonial-author">— Sofía M.</p>
-        </article>
-        <article class="kad-testimonial-card">
-          <p class="kad-testimonial-text">"El proceso de compra fue súper sencillo y la entrega rapidísima. La ropa de
-            segunda mano está en perfectas condiciones. ¡Muy recomendado!"</p>
-          <p class="kad-testimonial-author">— Carlos R.</p>
-        </article>
-        <article class="kad-testimonial-card">
-          <p class="kad-testimonial-text">"Me encanta la misión de KADYC de apoyar a pequeños emprendedores. Es una
-            plataforma con propósito y productos de alta calidad."</p>
-          <p class="kad-testimonial-author">— Maria P.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER MEJORADO -->
-  <footer class="site-footer" id="footer" role="contentinfo">
-    <div class="footer-container">
-      <!-- Newsletter Section -->
-      <section class="footer-newsletter">
-        <div class="newsletter-content">
-          <h3 class="newsletter-title">Únete a nuestra newsletter</h3>
-          <p class="newsletter-description">Sé el primero en conocer nuestras nuevas colecciones y ofertas exclusivas</p>
-          <form class="newsletter-form" id="newsletter-form">
-            <div class="newsletter-input-group">
-              <input type="email" placeholder="Tu email" class="newsletter-input" required>
-              <button type="submit" class="newsletter-btn">Suscribirse</button>
-            </div>
-            <small class="newsletter-disclaimer">Al suscribirte, aceptas recibir emails promocionales de KADYC</small>
-          </form>
-        </div>
-      </section>
-
-      <!-- Main Footer Content -->
-      <div class="footer-grid" aria-label="Información del sitio">
-        <!-- Columna 1: About -->
-        <section class="footer-col">
-          <h3 class="footer-title">Acerca de KADYC</h3>
-          <div class="footer-content">
-            <p class="footer-text">
-              KADYC es un espacio digital para emprendedores de moda —nueva y segunda mano—
-              donde los clientes encuentran variedad, calidad y precios accesibles.
-            </p>
-            <div class="footer-highlights">
-              <div class="highlight-item">
-                <i class="fas fa-shipping-fast"></i>
-                <span>Envío gratis</span>
-              </div>
-              <div class="highlight-item">
-                <i class="fas fa-undo"></i>
-                <span>Devoluciones 30 días</span>
-              </div>
-              <div class="highlight-item">
-                <i class="fas fa-shield-alt"></i>
-                <span>Compra segura</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Columna 2: Navegación -->
-        <section class="footer-col">
-          <h3 class="footer-title">Navegación</h3>
-          <nav class="footer-nav" aria-label="Enlaces de navegación">
+        <div class="logo" aria-label="KADYC logo">KADYC</div>
+        <div class="right">
             @if (User.Identity.IsAuthenticated)
             {
-              <a asp-controller="Home" asp-action="ViewProducts">Todos los productos</a>
-              <a asp-controller="Cart" asp-action="Index">Mi carrito</a>
-              <a asp-controller="Orders" asp-action="Index">Mis compras</a>
-              <a asp-controller="Orders" asp-action="Profile">Mi perfil</a>
+                <span>Hola, @User.Identity.Name</span>
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-area="" asp-controller="Categories" asp-action="Index">Categorías</a>
+                    <a asp-area="" asp-controller="Products" asp-action="Index">Productos</a>
+                }
+                <a asp-controller="Cart" asp-action="Index" class="cart-link">
+                    <i class="fas fa-shopping-cart"></i> CESTA <span id="cart-count">[0]</span>
+                </a>
+                <form method="post" asp-area="Identity" asp-page="/Account/Logout" style="display:inline;">
+                    <button type="submit" class="btn-link" style="border:none; background:none; text-decoration:underline; cursor:pointer;">CERRAR SESIÓN</button>
+                </form>
             }
             else
             {
-              <a asp-area="Identity" asp-page="/Account/Login">Iniciar sesión</a>
-              <a asp-area="Identity" asp-page="/Account/Register">Crear cuenta</a>
-            }
-            <a href="#mujer">Mujer</a>
-            <a href="#hombre">Hombre</a>
-            <a href="#segunda">Segunda mano</a>
-          </nav>
-        </section>
-
-        <!-- Columna 3: Soporte -->
-        <section class="footer-col">
-          <h3 class="footer-title">Soporte al cliente</h3>
-          <div class="footer-support">
-            <div class="support-item">
-              <i class="fas fa-phone"></i>
-              <div>
-                <span class="support-label">Teléfono</span>
-                <a href="tel:+50622223333" class="support-link">+506 2222-3333</a>
-              </div>
-            </div>
-            <div class="support-item">
-              <i class="fas fa-envelope"></i>
-              <div>
-                <span class="support-label">Email</span>
-                <a href="mailto:info@kadyc.com" class="support-link">info@kadyc.com</a>
-              </div>
-            </div>
-            <div class="support-item">
-              <i class="fas fa-clock"></i>
-              <div>
-                <span class="support-label">Horario</span>
-                <span class="support-text">Lun - Vie: 9:00 - 18:00</span>
-              </div>
-            </div>
-            <div class="support-item">
-              <i class="fas fa-map-marker-alt"></i>
-              <div>
-                <span class="support-label">Ubicación</span>
-                <a href="https://maps.app.goo.gl/1HecDr4HAfbERMN89" target="_blank" rel="noopener" class="support-link">
-                  Nicoya, Costa Rica
+                <a asp-area="Identity" asp-page="/Account/Login">INICIAR SESIÓN</a>
+                <a asp-area="Identity" asp-page="/Account/Register">REGISTRO</a>
+                <a href="javascript:void(0)" onclick="showLoginRequired()" class="cart-link-disabled">
+                    <i class="fas fa-shopping-cart"></i> CESTA [0]
                 </a>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Columna 4: Legal y Redes -->
-        <section class="footer-col">
-          <h3 class="footer-title">Síguenos</h3>
-          <div class="footer-social-links">
-            <a href="https://www.instagram.com/kadycstyle_?igsh=b2c4bWYzMmFoZHQ=" target="_blank" rel="noopener" class="social-link">
-              <i class="fab fa-instagram"></i>
-              <span>Instagram</span>
-            </a>
-            <a href="https://wa.me/50600000000" target="_blank" rel="noopener" class="social-link">
-              <i class="fab fa-whatsapp"></i>
-              <span>WhatsApp</span>
-            </a>
-            <a href="https://twitter.com" target="_blank" rel="noopener" class="social-link">
-              <i class="fab fa-twitter"></i>
-              <span>Twitter</span>
-            </a>
-          </div>
-          
-          <div class="footer-legal">
-            <h4 class="legal-title">Legal</h4>
-            <nav class="legal-nav">
-              <a href="#terminos">Términos de uso</a>
-              <a href="#privacidad">Política de privacidad</a>
-              <a href="#cookies">Política de cookies</a>
-            </nav>
-          </div>
-        </section>
-      </div>
-
-      <!-- Métodos de Pago -->
-      <section class="footer-payment">
-        <h4 class="payment-title">Métodos de pago seguros</h4>
-        <div class="payment-logos">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/2560px-Mastercard-logo.svg.png" alt="Mastercard" loading="lazy">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/American_Express_logo_%282018%29.svg/1200px-American_Express_logo_%282018%29.svg.png" alt="American Express" loading="lazy">
-          <img src="https://upload.wikimedia.org/frameworks/commons/a/a4/Paypal_2014_logo.png" alt="PayPal" loading="lazy">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa" loading="lazy">
+            }
         </div>
-      </section>
-
-      <!-- Footer Bottom -->
-      <div class="footer-bottom">
-        <div class="footer-brand">KADYC</div>
-        <div class="footer-copyright">
-          <p>&copy; 2024 KADYC. Todos los derechos reservados.</p>
-          <p class="footer-location">Hecho con ❤️ en Costa Rica</p>
-        </div>
-        <div class="footer-certification">
-          <div class="cert-item">
-            <i class="fas fa-lock"></i>
-            <span>SSL Seguro</span>
-          </div>
-        </div>
-      </div>
     </div>
-  </footer>
 
-  <!-- Scripts para funcionalidad del carrito -->
-  @if (User.Identity.IsAuthenticated)
-  {
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        updateCartCount();
-        initializeFeaturedProducts();
-        initializeNewsletter();
-    });
+    <!-- Drawer -->
+    <div class="menu-backdrop" hidden></div>
+    <aside id="site-menu" class="drawer" aria-hidden="true">
+        <div class="drawer-header">
+            <div class="logo">KADYC</div>
+            <button class="drawer-close" aria-label="Cerrar menú">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
 
-    function updateCartCount() {
-        fetch('@Url.Action("GetCartCount", "Cart")')
-            .then(response => response.json())
-            .then(count => {
-                const cartCount = document.getElementById('cart-count');
-                if (cartCount) {
-                    cartCount.textContent = '[' + count + ']';
+        <nav class="drawer-nav" aria-label="Menú principal">
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="nav-section">Tienda</div>
+                <a asp-controller="Home" asp-action="ViewProducts" data-link>
+                    <i class="fas fa-store"></i>
+                    <span>Ver Productos</span>
+                </a>
+                <a asp-controller="Cart" asp-action="Index" data-link>
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Mi Carrito</span>
+                    <span class="cart-badge" id="cart-count-drawer-badge" style="display: none;">0</span>
+                </a>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="nav-divider"></div>
+                    <div class="nav-section">Administración</div>
+                    <a asp-controller="Products" asp-action="Index" data-link>
+                        <i class="fas fa-box"></i>
+                        <span>Gestionar Productos</span>
+                    </a>
+                    <a asp-controller="Categories" asp-action="Index" data-link>
+                        <i class="fas fa-tags"></i>
+                        <span>Gestionar Categorías</span>
+                    </a>
                 }
-                
-                const cartCountDrawer = document.getElementById('cart-count-drawer');
-                if (cartCountDrawer) {
-                    cartCountDrawer.textContent = '[' + count + ']';
-                }
-            })
-            .catch(error => console.error('Error updating cart count:', error));
-    }
 
-    function initializeFeaturedProducts() {
-        // Añadir efecto de aparición progresiva
-        const featuredCards = document.querySelectorAll('.featured-card');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry, index) => {
-                if (entry.isIntersecting) {
-                    setTimeout(() => {
-                        entry.target.classList.add('animate-in');
-                    }, index * 100);
-                }
-            });
-        }, { threshold: 0.1 });
+                <div class="nav-divider"></div>
+                <div class="nav-section">Mi Cuenta</div>
+                <a asp-controller="Orders" asp-action="Index" data-link>
+                    <i class="fas fa-receipt"></i>
+                    <span>Mis Pedidos</span>
+                </a>
+                <a asp-controller="Orders" asp-action="Profile" data-link>
+                    <i class="fas fa-user"></i>
+                    <span>Mi Perfil</span>
+                </a>
+            }
+            else
+            {
+                <div class="nav-section">Cuenta</div>
+                <a asp-area="Identity" asp-page="/Account/Login" data-link>
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Iniciar Sesión</span>
+                </a>
+                <a asp-area="Identity" asp-page="/Account/Register" data-link>
+                    <i class="fas fa-user-plus"></i>
+                    <span>Registrarse</span>
+                </a>
 
-        featuredCards.forEach(card => {
-            observer.observe(card);
-        });
+                <div class="nav-divider"></div>
+                <div class="nav-section">Tienda</div>
+                <a href="javascript:void(0)" onclick="showLoginRequired()" data-link>
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Mi Carrito</span>
+                    <span style="opacity: 0.5; font-size: 0.8rem;">(requiere sesión)</span>
+                </a>
+                <a href="#featured-products" data-link onclick="closeDrawerAndScroll(this)">
+                    <i class="fas fa-star"></i>
+                    <span>Productos Destacados</span>
+                </a>
+            }
 
-        // Manejar envío de formularios de agregar al carrito
-        const quickAddForms = document.querySelectorAll('.add-to-cart-quick');
-        quickAddForms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                const button = this.querySelector('.quick-add-btn');
-                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                button.disabled = true;
-                
-                // Restaurar después de 2 segundos
-                setTimeout(() => {
-                    button.innerHTML = '<i class="fas fa-shopping-cart"></i>';
-                    button.disabled = false;
-                    updateCartCount(); // Actualizar contador
-                }, 2000);
-            });
-        });
-    }
+            <div class="nav-divider"></div>
+            <div class="nav-section">Información</div>
+            <a href="#confianza" data-link onclick="closeDrawerAndScroll(this)">
+                <i class="fas fa-heart"></i>
+                <span>Testimonios</span>
+            </a>
+            <a href="#footer" data-link onclick="closeDrawerAndScroll(this)">
+                <i class="fas fa-phone"></i>
+                <span>Contacto</span>
+            </a>
+        </nav>
 
-    function initializeNewsletter() {
-        const newsletterForm = document.getElementById('newsletter-form');
-        if (newsletterForm) {
-            newsletterForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const email = this.querySelector('.newsletter-input').value;
-                const button = this.querySelector('.newsletter-btn');
-                
-                button.textContent = 'Enviando...';
-                button.disabled = true;
-                
-                // Simular envío
-                setTimeout(() => {
-                    button.textContent = '¡Listo!';
-                    this.querySelector('.newsletter-input').value = '';
-                    
-                    setTimeout(() => {
-                        button.textContent = 'Suscribirse';
-                        button.disabled = false;
-                    }, 2000);
-                }, 1000);
-            });
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="drawer-footer">
+                <div class="drawer-user-info">
+                    <div class="drawer-user-avatar">
+                        @(User.Identity.Name?.Substring(0, 1).ToUpper())
+                    </div>
+                    <div class="drawer-user-details">
+                        <p class="drawer-user-name">@User.Identity.Name</p>
+                        <p class="drawer-user-role">
+                            @(User.IsInRole("Admin") ? "Administrador" : "Cliente")
+                        </p>
+                    </div>
+                </div>
+                <div class="drawer-actions">
+                    <button class="drawer-btn" onclick="document.getElementById('open-contact-form').click()">
+                        <i class="fas fa-envelope"></i>
+                        <span>Contacto</span>
+                    </button>
+                    <form method="post" asp-area="Identity" asp-page="/Account/Logout" style="flex: 1;">
+                        <button type="submit" class="drawer-btn drawer-btn--primary" style="width: 100%;">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Cerrar Sesión</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
         }
-    }
+        else
+        {
+            <div class="drawer-footer">
+                <div class="drawer-actions">
+                    <a asp-area="Identity" asp-page="/Account/Login" class="drawer-btn drawer-btn--primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Iniciar Sesión</span>
+                    </a>
+                    <button class="drawer-btn" onclick="document.getElementById('open-contact-form').click()">
+                        <i class="fas fa-envelope"></i>
+                        <span>Contacto</span>
+                    </button>
+                </div>
+            </div>
+        }
+    </aside>
 
-    window.updateCartCount = updateCartCount;
-    </script>
-  }
-  else
-  {
-    <script>
-    function showLoginRequired() {
-        alert('Debes iniciar sesión para acceder al carrito de compras.');
-    }
+    <!-- PRIMERA VISTA -->
+    <section class="intro" id="inicio" aria-labelledby="main-title">
+        <div class="intro-center">
+            <div class="kicker">DESPLÁZATE HACIA ABAJO</div>
+            <h1 id="main-title" class="title">THE NEW</h1>
+            <div class="scroll-wrap">
+                <div class="scroll-indicator"></div>
+            </div>
+        </div>
+        <div class="newsletter-mini">ÚNETE A NUESTRA NEWSLETTER</div>
+    </section>
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // Animaciones para usuarios no autenticados también
-        const featuredCards = document.querySelectorAll('.featured-card');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry, index) => {
-                if (entry.isIntersecting) {
-                    setTimeout(() => {
-                        entry.target.classList.add('animate-in');
-                    }, index * 100);
+    <!-- DOBLE HERO -->
+    <main class="hero" id="hero">
+        <div class="hero-grid">
+            <div>
+                <div class="frame" style="
+              background-image: url('https://i.pinimg.com/736x/32/a7/8d/32a78deb4fea51fe7c52213cbfb525ca.jpg');
+            " role="img" aria-label="Editorial look 1"></div>
+            </div>
+            <div>
+                <div class="frame" style="
+              background-image: url('https://i.pinimg.com/736x/d3/9a/1b/d39a1bde4cffa143b3fa2d506abcd61a.jpg');
+            " role="img" aria-label="Editorial look 2"></div>
+                <div class="caption">
+                    THE NEW · KADYC COLLECTION · FALL/WINTER 2025
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SECCIÓN DE PRODUCTOS DESTACADOS -->
+    <section class="featured-products" id="featured-products">
+        <div class="kad-wrap">
+            <header class="featured-header">
+                <h2 class="featured-title">Productos Destacados</h2>
+                <p class="featured-subtitle">Descubre nuestras piezas más populares y nuevas llegadas</p>
+            </header>
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="featured-grid">
+                    @foreach (var producto in Model)
+                    {
+                        <article class="featured-card" data-category="@producto.Category?.Name">
+                            <div class="featured-image">
+                                @if (!string.IsNullOrEmpty(producto.ImageUrl))
+                                {
+                                    <img src="@producto.ImageUrl" alt="@producto.Name" loading="lazy">
+                                }
+                                else
+                                {
+                                    <div class="featured-placeholder">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                }
+                                <div class="featured-overlay">
+                                    @if (User.Identity.IsAuthenticated)
+                                    {
+                                        <form method="post" asp-controller="Cart" asp-action="AddToCart" class="add-to-cart-quick">
+                                            <input type="hidden" name="productId" value="@producto.Id">
+                                            <input type="hidden" name="quantity" value="1">
+                                            <button type="submit" class="quick-add-btn" title="Agregar al carrito">
+                                                <i class="fas fa-shopping-cart"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    <a href="@Url.Action("DetallesProducto", "Home", new { id = producto.Id })" class="quick-view-btn" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="featured-info">
+                                <span class="featured-category">@producto.Category?.Name</span>
+                                <h3 class="featured-name">@producto.Name</h3>
+                                <p class="featured-description">@producto.Description</p>
+                                <div class="featured-price-wrapper">
+                                    <span class="featured-price">₡@producto.Price.ToString("N0")</span>
+                                    @if (producto.Stock > 0)
+                                    {
+                                        <span class="featured-stock">@producto.Stock disponibles</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="featured-stock out-of-stock">Agotado</span>
+                                    }
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+
+                <div class="featured-cta">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a href="@Url.Action("ViewProducts", "Home")" class="kad-btn kad-btn--outline kad-btn--large">
+                            Ver Todos los Productos
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="@Url.Page("/Account/Login", new { area = "Identity" })" class="kad-btn kad-btn--outline kad-btn--large">
+                            Iniciar Sesión para Ver Más
+                        </a>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="featured-empty">
+                    <i class="fas fa-box-open"></i>
+                    <h3>Próximamente</h3>
+                    <p>Estamos preparando increíbles productos para ti. ¡Vuelve pronto!</p>
+                </div>
+            }
+        </div>
+    </section>
+
+    <script src="~/js/script.js" asp-append-version="true"></script>
+    <!-- Testimonios/Confianza -->
+    <section id="confianza" class="kad-section">
+        <div class="kad-wrap">
+            <header>
+                <h2>Comentarios destacados de nuestros clientes</h2>
+
+            </header>
+            <div class="kad-testimonials-grid">
+                <article class="kad-testimonial-card">
+                    <p class="kad-testimonial-text">
+                        "¡Increíble calidad y servicio! Encontré piezas únicas que no hallaba en
+                        ningún otro lugar. KADYC es mi nueva tienda favorita."
+                    </p>
+                    <p class="kad-testimonial-author">— Sofía M.</p>
+                </article>
+                <article class="kad-testimonial-card">
+                    <p class="kad-testimonial-text">
+                        "El proceso de compra fue súper sencillo y la entrega rapidísima. La ropa de
+                        segunda mano está en perfectas condiciones. ¡Muy recomendado!"
+                    </p>
+                    <p class="kad-testimonial-author">— Carlos R.</p>
+                </article>
+                <article class="kad-testimonial-card">
+                    <p class="kad-testimonial-text">
+                        "Me encanta la misión de KADYC de apoyar a pequeños emprendedores. Es una
+                        plataforma con propósito y productos de alta calidad."
+                    </p>
+                    <p class="kad-testimonial-author">— Maria P.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER MEJORADO -->
+    <footer class="site-footer" id="footer" role="contentinfo">
+        <div class="footer-container">
+            <!-- Newsletter Section -->
+            <section class="footer-newsletter">
+                <div class="newsletter-content">
+                    <h3 class="newsletter-title">Únete a nuestra newsletter</h3>
+                    <p class="newsletter-description">Sé el primero en conocer nuestras nuevas colecciones y ofertas exclusivas</p>
+                    <form class="newsletter-form" id="newsletter-form">
+                        <div class="newsletter-input-group">
+                            <input type="email" placeholder="Tu email" class="newsletter-input" required>
+                            <button type="submit" class="newsletter-btn">Suscribirse</button>
+                        </div>
+                        <small class="newsletter-disclaimer">Al suscribirte, aceptas recibir emails promocionales de KADYC</small>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Main Footer Content -->
+            <div class="footer-grid" aria-label="Información del sitio">
+                <!-- Columna 1: About -->
+                <section class="footer-col">
+                    <h3 class="footer-title">Acerca de KADYC</h3>
+                    <div class="footer-content">
+                        <p class="footer-text">
+                            KADYC es un espacio digital para emprendedores de moda —nueva y segunda mano—
+                            donde los clientes encuentran variedad, calidad y precios accesibles.
+                        </p>
+                        <div class="footer-highlights">
+                            <div class="highlight-item">
+                                <i class="fas fa-shipping-fast"></i>
+                                <span>Envío gratis</span>
+                            </div>
+                            <div class="highlight-item">
+                                <i class="fas fa-undo"></i>
+                                <span>Devoluciones 30 días</span>
+                            </div>
+                            <div class="highlight-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Compra segura</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Columna 2: Navegación -->
+                <section class="footer-col">
+                    <h3 class="footer-title">Navegación</h3>
+                    <nav class="footer-nav" aria-label="Enlaces de navegación">
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a asp-controller="Home" asp-action="ViewProducts">Todos los productos</a>
+                            <a asp-controller="Cart" asp-action="Index">Mi carrito</a>
+                            <a asp-controller="Orders" asp-action="Index">Mis compras</a>
+                            <a asp-controller="Orders" asp-action="Profile">Mi perfil</a>
+                        }
+                        else
+                        {
+                            <a asp-area="Identity" asp-page="/Account/Login">Iniciar sesión</a>
+                            <a asp-area="Identity" asp-page="/Account/Register">Crear cuenta</a>
+                        }
+                    </nav>
+                </section>
+
+                <!-- Columna 3: Soporte -->
+                <section class="footer-col">
+                    <h3 class="footer-title">Soporte al cliente</h3>
+                    <div class="footer-support">
+                        <div class="support-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <span class="support-label">Teléfono</span>
+                                <a href="tel:+50622223333" class="support-link">+506 2222-3333</a>
+                            </div>
+                        </div>
+                        <div class="support-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <span class="support-label">Email</span>
+                                <a href="mailto:info@kadyc.com" class="support-link">info@kadyc.com</a>
+                            </div>
+                        </div>
+                        <div class="support-item">
+                            <i class="fas fa-clock"></i>
+                            <div>
+                                <span class="support-label">Horario</span>
+                                <span class="support-text">Lun - Vie: 9:00 - 18:00</span>
+                            </div>
+                        </div>
+                        <div class="support-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <span class="support-label">Ubicación</span>
+                                <a href="https://maps.app.goo.gl/1HecDr4HAfbERMN89" target="_blank" rel="noopener" class="support-link">
+                                    Nicoya, Costa Rica
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Columna 4: Legal y Redes -->
+                <section class="footer-col">
+                    <h3 class="footer-title">Síguenos</h3>
+                    <div class="footer-social-links">
+                        <a href="https://www.instagram.com/kadycstyle_?igsh=b2c4bWYzMmFoZHQ=" target="_blank" rel="noopener" class="social-link">
+                            <i class="fab fa-instagram"></i>
+                            <span>Instagram</span>
+                        </a>
+                        <a href="https://wa.me/50600000000" target="_blank" rel="noopener" class="social-link">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>WhatsApp</span>
+                        </a>
+                        <a href="https://twitter.com" target="_blank" rel="noopener" class="social-link">
+                            <i class="fab fa-twitter"></i>
+                            <span>Twitter</span>
+                        </a>
+                    </div>
+
+                    <div class="footer-legal">
+                        <h4 class="legal-title">Legal</h4>
+                        <nav class="legal-nav">
+                            <a href="#terminos">Términos de uso</a>
+                            <a href="#privacidad">Política de privacidad</a>
+                            <a href="#cookies">Política de cookies</a>
+                        </nav>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Métodos de Pago -->
+            <section class="footer-payment">
+                <h4 class="payment-title">Métodos de pago seguros</h4>
+                <div class="payment-logos">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/2560px-Mastercard-logo.svg.png" alt="Mastercard" loading="lazy">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/American_Express_logo_%282018%29.svg/1200px-American_Express_logo_%282018%29.svg.png" alt="American Express" loading="lazy">
+                    <img src="https://upload.wikimedia.org/frameworks/commons/a/a4/Paypal_2014_logo.png" alt="PayPal" loading="lazy">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa" loading="lazy">
+                </div>
+            </section>
+
+            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <div class="footer-brand">KADYC</div>
+                <div class="footer-copyright">
+                    <p>&copy; 2024 KADYC. Todos los derechos reservados.</p>
+                    <p class="footer-location">Hecho con ❤️ en Costa Rica</p>
+                </div>
+                <div class="footer-certification">
+                    <div class="cert-item">
+                        <i class="fas fa-lock"></i>
+                        <span>SSL Seguro</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts para funcionalidad del carrito -->
+    @if (User.Identity.IsAuthenticated)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                updateCartCount();
+                initializeFeaturedProducts();
+                initializeNewsletter();
+            });
+
+            function updateCartCount() {
+                fetch('@Url.Action("GetCartCount", "Cart")')
+                    .then(response => response.json())
+                    .then(count => {
+                        const cartCount = document.getElementById('cart-count');
+                        if (cartCount) {
+                            cartCount.textContent = '[' + count + ']';
+                        }
+
+                        const cartCountDrawer = document.getElementById('cart-count-drawer');
+                        if (cartCountDrawer) {
+                            cartCountDrawer.textContent = '[' + count + ']';
+                        }
+                    })
+                    .catch(error => console.error('Error updating cart count:', error));
+            }
+
+            function initializeFeaturedProducts() {
+                // Añadir efecto de aparición progresiva
+                const featuredCards = document.querySelectorAll('.featured-card');
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry, index) => {
+                        if (entry.isIntersecting) {
+                            setTimeout(() => {
+                                entry.target.classList.add('animate-in');
+                            }, index * 100);
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                featuredCards.forEach(card => {
+                    observer.observe(card);
+                });
+
+                // Manejar envío de formularios de agregar al carrito
+                const quickAddForms = document.querySelectorAll('.add-to-cart-quick');
+                quickAddForms.forEach(form => {
+                    form.addEventListener('submit', function(e) {
+                        const button = this.querySelector('.quick-add-btn');
+                        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                        button.disabled = true;
+
+                        // Restaurar después de 2 segundos
+                        setTimeout(() => {
+                            button.innerHTML = '<i class="fas fa-shopping-cart"></i>';
+                            button.disabled = false;
+                            updateCartCount(); // Actualizar contador
+                        }, 2000);
+                    });
+                });
+            }
+
+            function initializeNewsletter() {
+                const newsletterForm = document.getElementById('newsletter-form');
+                if (newsletterForm) {
+                    newsletterForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const email = this.querySelector('.newsletter-input').value;
+                        const button = this.querySelector('.newsletter-btn');
+
+                        button.textContent = 'Enviando...';
+                        button.disabled = true;
+
+                        // Simular envío
+                        setTimeout(() => {
+                            button.textContent = '¡Listo!';
+                            this.querySelector('.newsletter-input').value = '';
+
+                            setTimeout(() => {
+                                button.textContent = 'Suscribirse';
+                                button.disabled = false;
+                            }, 2000);
+                        }, 1000);
+                    });
+                }
+            }
+
+            window.updateCartCount = updateCartCount;
+        </script>
+    }
+    else
+    {
+        <script>
+            function showLoginRequired() {
+                alert('Debes iniciar sesión para acceder al carrito de compras.');
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                // Animaciones para usuarios no autenticados también
+                const featuredCards = document.querySelectorAll('.featured-card');
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach((entry, index) => {
+                        if (entry.isIntersecting) {
+                            setTimeout(() => {
+                                entry.target.classList.add('animate-in');
+                            }, index * 100);
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                featuredCards.forEach(card => {
+                    observer.observe(card);
+                });
+
+                // Newsletter para usuarios no autenticados
+                const newsletterForm = document.getElementById('newsletter-form');
+                if (newsletterForm) {
+                    newsletterForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        alert('¡Gracias! Para completar tu suscripción, por favor inicia sesión o crea una cuenta.');
+                    });
                 }
             });
-        }, { threshold: 0.1 });
-
-        featuredCards.forEach(card => {
-            observer.observe(card);
-        });
-
-        // Newsletter para usuarios no autenticados
-        const newsletterForm = document.getElementById('newsletter-form');
-        if (newsletterForm) {
-            newsletterForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                alert('¡Gracias! Para completar tu suscripción, por favor inicia sesión o crea una cuenta.');
-            });
-        }
-    });
-    </script>
-  }
+        </script>
+    }
 </body>
 
 </html>
