@@ -16,14 +16,15 @@ namespace Proyecto_v1.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPost(string returnUrl = null)
         {
             await _signInManager.SignOutAsync();
-            if (returnUrl != null)
+            
+            // Si se especifica un returnUrl válido, usarlo
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
                 return LocalRedirect(returnUrl);
             }
-            else
-            {
-                return RedirectToPage();
-            }
+   
+            // Si no hay returnUrl, redirigir a la página principal
+            return RedirectToAction("Index", "Home");
         }
     }
 }
