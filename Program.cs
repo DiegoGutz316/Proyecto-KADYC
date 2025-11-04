@@ -21,6 +21,21 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDBContext>();
 
+// Configurar las URLs de Identity
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.LogoutPath = "/Identity/Account/Logout";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    
+    // Configurar para que después del logout redirija a la página principal
+    options.Events.OnRedirectToLogout = context =>
+  {
+        context.Response.Redirect("/");
+        return Task.CompletedTask;
+    };
+});
+
 // Registrar servicios
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
