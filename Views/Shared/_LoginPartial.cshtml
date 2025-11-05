@@ -6,21 +6,105 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a class="nav-link text-dark">Hola, @User.Identity?.Name!</a>
+      <a class="nav-link text-dark">Hola, @User.Identity?.Name!</a>
     </li>
     <li class="nav-item">
-        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
-        </form>
-    </li>
+    <form class="form-inline logout-form" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+      <button type="submit" class="nav-link btn btn-link text-dark logout-btn">Logout</button>
+  </form>
+</li>
 }
 else
 {
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Registro</a>
-    </li>
+      <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Registro</a>
+ </li>
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+     <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
     </li>
 }
 </ul>
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <script>
+ document.addEventListener('DOMContentLoaded', function() {
+    initializeLogoutConfirmation();
+   });
+
+        function initializeLogoutConfirmation() {
+     // Obtener todos los formularios de logout
+ const logoutForms = document.querySelectorAll('.logout-form');
+   
+    logoutForms.forEach(form => {
+     form.addEventListener('submit', function(e) {
+  e.preventDefault(); // Prevenir el envío inmediato
+     
+       // Mostrar confirmación personalizada
+       showLogoutConfirmation(() => {
+   // Si el usuario confirma, enviar el formulario
+    this.submit();
+    });
+ });
+  });
+        }
+
+      function showLogoutConfirmation(onConfirm) {
+    // Crear modal de confirmación personalizado
+    const confirmModal = document.createElement('div');
+       confirmModal.className = 'kad-confirm-modal';
+    confirmModal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 10000;';
+
+   const confirmContent = document.createElement('div');
+  confirmContent.className = 'kad-confirm-content';
+     confirmContent.style.cssText = 'background: white; border-radius: 12px; padding: 30px; max-width: 400px; width: 90%; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); animation: confirmSlideIn 0.3s ease;';
+
+  confirmContent.innerHTML = '<div style="margin-bottom: 20px;"><i class="fas fa-sign-out-alt" style="font-size: 48px; color: #e74c3c; margin-bottom: 15px;"></i><h3 style="margin: 0 0 10px 0; color: #333; font-size: 1.5em;">¿Cerrar sesión?</h3><p style="margin: 0; color: #666; font-size: 1em;">¿Estás seguro de que quieres cerrar tu sesión en KADYC?</p></div><div style="display: flex; gap: 15px; justify-content: center;"><button class="kad-confirm-cancel" style="padding: 12px 24px; border: 2px solid #95a5a6; background: transparent; color: #95a5a6; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;">Cancelar</button><button class="kad-confirm-logout" style="padding: 12px 24px; border: 2px solid #e74c3c; background: #e74c3c; color: white; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;">Sí, cerrar sesión</button></div>';
+
+    // Agregar estilos de animación si no existen
+  if (!document.getElementById('kad-confirm-styles')) {
+    const style = document.createElement('style');
+     style.id = 'kad-confirm-styles';
+      style.innerHTML = 'keyframes confirmSlideIn { from { opacity: 0; transform: translateY(-50px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } } .kad-confirm-cancel:hover { background: #95a5a6 !important; color: white !important; } .kad-confirm-logout:hover { background: #c0392b !important; border-color: #c0392b !important; }';
+   style.innerHTML = style.innerHTML.replace('keyframes', String.fromCharCode(64) + 'keyframes');
+       document.head.appendChild(style);
+    }
+
+     confirmModal.appendChild(confirmContent);
+  document.body.appendChild(confirmModal);
+
+ // Event listeners para los botones
+  const cancelBtn = confirmContent.querySelector('.kad-confirm-cancel');
+     const logoutBtn = confirmContent.querySelector('.kad-confirm-logout');
+
+   function closeModal() {
+  confirmModal.style.animation = 'confirmSlideOut 0.3s ease';
+   setTimeout(() => {
+    document.body.removeChild(confirmModal);
+         }, 300);
+ }
+
+cancelBtn.addEventListener('click', closeModal);
+
+    logoutBtn.addEventListener('click', () => {
+     closeModal();
+ onConfirm();
+   });
+
+  // Cerrar al hacer clic en el backdrop
+      confirmModal.addEventListener('click', (e) => {
+  if (e.target === confirmModal) {
+    closeModal();
+     }
+      });
+
+ // Cerrar con Escape
+     document.addEventListener('keydown', function escapeHandler(e) {
+  if (e.key === 'Escape') {
+   closeModal();
+    document.removeEventListener('keydown', escapeHandler);
+  }
+ });
+      }
+    </script>
+}
