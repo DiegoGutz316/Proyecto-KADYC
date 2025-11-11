@@ -30,7 +30,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     
     // Configurar para que después del logout redirija a la página principal
     options.Events.OnRedirectToLogout = context =>
-  {
+    {
         context.Response.Redirect("/");
         return Task.CompletedTask;
     };
@@ -39,6 +39,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 // Registrar servicios
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<IEmailService, EmailService>(); // Nuevo servicio de email
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

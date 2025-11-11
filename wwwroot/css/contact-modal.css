@@ -19,29 +19,29 @@
 }
 
 .kad-form-modal--open {
-    opacity: 1;
+  opacity: 1;
     visibility: visible;
 }
 
 .kad-form-modal__backdrop {
     position: absolute;
-    top: 0;
+  top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.75);
     backdrop-filter: blur(8px);
     transition: all 0.3s ease;
 }
 
 .kad-form-modal__content {
     position: relative;
-    background: #ffffff;
+background: #ffffff;
     border-radius: 1.5rem;
     box-shadow: 
-        0 25px 50px -12px rgba(0, 0, 0, 0.25),
-        0 0 0 1px rgba(255, 255, 255, 0.1);
-    max-width: 500px;
+        0 25px 50px -12px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+max-width: 500px;
     width: 100%;
     max-height: 90vh;
     overflow-y: auto;
@@ -59,8 +59,8 @@
 
 @keyframes shake {
     0%, 100% { transform: scale(1) translateY(0) translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: scale(1) translateY(0) translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: scale(1) translateY(0) translateX(5px); }
+    10%, 30%, 50%, 70%, 90% { transform: scale(1) translateY(0) translateX(-8px); }
+    20%, 40%, 60%, 80% { transform: scale(1) translateY(0) translateX(8px); }
 }
 
 /* ============================================
@@ -69,18 +69,18 @@
 
 .kad-form {
     padding: 2.5rem;
-    position: relative;
+  position: relative;
 }
 
 .kad-form::before {
     content: '';
     position: absolute;
-    top: 0;
+  top: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 60px;
     height: 4px;
-    background: linear-gradient(90deg, #007bff, #0056b3);
+ background: linear-gradient(90deg, #007bff, #0056b3);
     border-radius: 0 0 4px 4px;
 }
 
@@ -90,6 +90,10 @@
     color: #2c3e50;
     margin: 0 0 0.5rem 0;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .kad-form .form-subtitle {
@@ -102,7 +106,7 @@
 
 .kad-field {
     margin-bottom: 1.5rem;
-    position: relative;
+ position: relative;
 }
 
 .kad-field label {
@@ -119,12 +123,13 @@
 .kad-field label i {
     color: #007bff;
     width: 16px;
+    text-align: center;
 }
 
 .kad-field input,
 .kad-field textarea {
     width: 100%;
-    padding: 0.875rem 1rem;
+    padding: 1rem;
     border: 2px solid #e5e7eb;
     border-radius: 0.75rem;
     font-size: 1rem;
@@ -144,14 +149,15 @@
 .kad-field textarea:focus {
     outline: none;
     border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
     transform: translateY(-1px);
 }
 
 .kad-field--error input,
 .kad-field--error textarea {
     border-color: #dc3545;
-    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15);
+    background-color: #fef2f2;
 }
 
 .kad-field--error label {
@@ -167,11 +173,13 @@
     transform: translateY(-10px);
     transition: all 0.2s ease;
     min-height: 1rem;
+    font-weight: 500;
 }
 
 .kad-field textarea {
-    resize: vertical;
+ resize: vertical;
     min-height: 100px;
+    line-height: 1.5;
 }
 
 /* ============================================
@@ -183,14 +191,14 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.875rem 1.5rem;
-    border: none;
-    border-radius: 0.75rem;
-    font-weight: 600;
+    padding: 1rem 1.5rem;
+  border: none;
+ border-radius: 0.75rem;
+ font-weight: 600;
     font-size: 0.95rem;
     text-decoration: none;
     cursor: pointer;
-    transition: all 0.2s ease;
+  transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
     font-family: inherit;
@@ -199,19 +207,22 @@
 .kad-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    pointer-events: none;
 }
 
 .kad-btn--solid {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: linear-gradient(135deg, #000 0%, #000 100%);
     color: white;
     box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
     width: 100%;
-    margin-top: 1rem;
+    margin-top: 1px;
+  font-size: 1rem;
+    padding: 1.125rem 1.5rem;
 }
 
 .kad-btn--solid:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
+ box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
 }
 
 .kad-btn--outline {
@@ -224,6 +235,7 @@
     background: #007bff;
     color: white;
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
 }
 
 .kad-btn--ghost {
@@ -233,12 +245,15 @@
     position: absolute;
     top: 1rem;
     right: 1rem;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
-    padding: 0;
+ padding: 0;
     font-size: 1.2rem;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .kad-btn--ghost:hover {
@@ -272,8 +287,8 @@
    ============================================ */
 
 .kad-status {
-    margin-top: 1rem;
-    padding: 0.875rem 1rem;
+    margin-top: 1.5rem;
+    padding: 1rem;
     border-radius: 0.75rem;
     font-size: 0.9rem;
     font-weight: 500;
@@ -281,28 +296,29 @@
     opacity: 0;
     transform: translateY(-10px);
     transition: all 0.3s ease;
+border: 1px solid transparent;
 }
 
 .kad-status--success {
-    background: #d1edff;
+  background: linear-gradient(135deg, #d1edff 0%, #e3f2fd 100%);
     color: #0f5132;
-    border: 1px solid #badbcc;
+    border-color: #b3d9ff;
 }
 
 .kad-status--error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  color: #721c24;
+    border-color: #f1aeb5;
 }
 
 .kad-status--info {
-    background: #cff4fc;
+    background: linear-gradient(135deg, #cff4fc 0%, #b6effb 100%);
     color: #055160;
-    border: 1px solid #b6effb;
+    border-color: #9eeaf9;
 }
 
 /* ============================================
-   ANIMACIONES ADICIONALES
+ANIMACIONES ADICIONALES
    ============================================ */
 
 @keyframes fadeInUp {
@@ -325,7 +341,7 @@
 }
 
 .kad-form-modal--open .kad-field:nth-child(3) {
-    animation: fadeInUp 0.6s ease 0.3s both;
+  animation: fadeInUp 0.6s ease 0.3s both;
 }
 
 .kad-form-modal--open .kad-field:nth-child(4) {
@@ -345,21 +361,62 @@
 }
 
 /* ============================================
+   FLOATING CONTACT BUTTON IMPROVEMENTS
+   ============================================ */
+
+.kad-floating-form-cta {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-end;
+}
+
+.kad-floating-form-cta .kad-btn {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 2rem;
+    padding: 0.875rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kad-floating-form-cta .kad-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.kad-floating-form-cta .kad-btn--outline {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid ;
+    color: #000;
+}
+
+.kad-floating-form-cta .kad-btn--outline:hover {
+    background: #000;
+ color: white;
+    border-color: #000;
+}
+
+/* ============================================
    RESPONSIVE
    ============================================ */
 
 @media (max-width: 768px) {
-    .kad-form-modal {
+.kad-form-modal {
         padding: 0.5rem;
-        align-items: flex-end;
+    align-items: flex-end;
     }
     
     .kad-form-modal__content {
-        border-radius: 1.5rem 1.5rem 0 0;
+  border-radius: 1.5rem 1.5rem 0 0;
         max-height: 85vh;
-        width: 100%;
+     width: 100%;
         transform: translateY(100%);
-    }
+}
     
     .kad-form-modal--open .kad-form-modal__content {
         transform: translateY(0);
@@ -368,17 +425,27 @@
     .kad-form {
         padding: 2rem 1.5rem;
     }
+    
+    .kad-floating-form-cta {
+  bottom: 1rem;
+        right: 1rem;
+    }
+    
+  .kad-floating-form-cta .kad-btn {
+     font-size: 0.9rem;
+        padding: 0.75rem 1.25rem;
+    }
 }
 
 @media (max-width: 480px) {
     .kad-form {
-        padding: 1.5rem 1rem;
+    padding: 1.5rem 1rem;
     }
     
     .kad-form h2 {
-        font-size: 1.5rem;
+  font-size: 1.5rem;
     }
-    
+
     .kad-field {
         margin-bottom: 1.25rem;
     }
@@ -386,8 +453,28 @@
     .kad-btn--ghost {
         top: 0.75rem;
         right: 0.75rem;
-        width: 36px;
-        height: 36px;
+        width: 40px;
+        height: 40px;
         font-size: 1rem;
+    }
+    
+    .kad-floating-form-cta {
+   position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+    
+    .kad-floating-form-cta .kad-btn {
+flex: 1;
+        border-radius: 0.75rem;
+   box-shadow: none;
     }
 }

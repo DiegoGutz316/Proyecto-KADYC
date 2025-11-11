@@ -16,6 +16,7 @@
           content="KADYC: tienda minimalista (hombres y mujeres), nueva y segunda mano. Portada editorial." />
     <link rel="stylesheet" href="~/css/styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/featured-products.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/contact-modal.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
@@ -23,7 +24,9 @@
     <!-- Botón flotante para formulario de contacto y catalogo -->
     <div class="kad-floating-form-cta">
         <a class="kad-btn kad-btn--solid" href="#featured-products" aria-label="Ver productos destacados">Ver destacados</a>
-        <button id="open-contact-form" class="kad-btn kad-btn--outline" aria-label="Abrir formulario de contacto">Contáctanos</button>
+        <button id="open-contact-form" class="kad-btn kad-btn--outline" aria-label="Abrir formulario de contacto">
+            <i class="fas fa-envelope"></i> Contáctanos
+        </button>
         @if (User.Identity.IsAuthenticated)
         {
             <a class="kad-btn kad-btn--solid" asp-controller="Home" asp-action="ViewProducts">Todos los Productos</a>
@@ -34,41 +37,105 @@
         }
     </div>
 
-    <div id="kad-form-modal" class="kad-form-modal" style="display:none;">
+    <!-- MODAL DE CONTACTO MEJORADO -->
+    <div id="kad-form-modal" class="kad-form-modal" style="display:none;" role="dialog" aria-labelledby="contact-form-title" aria-modal="true">
         <div class="kad-form-modal__backdrop"></div>
         <div class="kad-form-modal__content">
-            <button id="close-contact-form" class="kad-btn kad-btn--ghost" style="float:right">×</button>
+            <button id="close-contact-form" class="kad-btn kad-btn--ghost" aria-label="Cerrar formulario">
+                <i class="fas fa-times"></i>
+            </button>
             <form id="kad-form" class="kad-form" novalidate>
+                <h2 id="contact-form-title">
+                    <i class="fas fa-envelope" style="color: #007bff; margin-right: 0.5rem;"></i>
+                    Contáctanos
+                </h2>
+                <p class="form-subtitle">
+                    ¡Nos encantaría saber de ti! Envíanos tu mensaje y te responderemos pronto. ✨
+                </p>
+
                 <div class="kad-field">
-                    <label for="kad-nombre">Nombre *</label>
-                    <input id="kad-nombre" name="nombre" required minlength="2" autocomplete="name">
+                    <label for="kad-nombre">
+                        <i class="fas fa-user"></i>
+                        Nombre *
+                    </label>
+                    <input id="kad-nombre"
+                           name="nombre"
+                           type="text"
+                           required
+                           minlength="2"
+                           maxlength="100"
+                           autocomplete="name"
+                           placeholder="Tu nombre completo">
                     <small class="kad-error" aria-live="polite"></small>
                 </div>
+
                 <div class="kad-field">
-                    <label for="kad-correo">Correo *</label>
-                    <input id="kad-correo" name="correo" type="email" required autocomplete="email">
+                    <label for="kad-correo">
+                        <i class="fas fa-envelope"></i>
+                        Correo Electrónico *
+                    </label>
+                    <input id="kad-correo"
+                           name="correo"
+                           type="email"
+                           required
+                           autocomplete="email"
+                           placeholder="tu@correo.com">
                     <small class="kad-error" aria-live="polite"></small>
                 </div>
+
                 <div class="kad-field">
-                    <label for="kad-tel">Teléfono *</label>
-                    <input id="kad-tel" name="tel" type="tel" required pattern="\+?\d{7,15}" autocomplete="tel">
+                    <label for="kad-tel">
+                        <i class="fas fa-phone"></i>
+                        Teléfono *
+                    </label>
+                    <input id="kad-tel"
+                           name="tel"
+                           type="tel"
+                           required
+                           pattern="[\+]?[\d\s\-\(\)]{7,20}"
+                           autocomplete="tel"
+                           placeholder="+506 1234-5678">
                     <small class="kad-error" aria-live="polite"></small>
                 </div>
+
                 <div class="kad-field">
-                    <label for="kad-msg">Mensaje *</label>
-                    <textarea id="kad-msg" name="msg" required minlength="10" rows="4"></textarea>
+                    <label for="kad-msg">
+                        <i class="fas fa-comment-alt"></i>
+                        Mensaje *
+                    </label>
+                    <textarea id="kad-msg"
+                              name="msg"
+                              required
+                              minlength="10"
+                              maxlength="1000"
+                              rows="4"
+                              placeholder="Cuéntanos en qué podemos ayudarte..."></textarea>
                     <small class="kad-error" aria-live="polite"></small>
                 </div>
-                <div class="kad-field" style="position:absolute;left:-9999px">
+
+                <!-- Campo honeypot para detectar spam -->
+                <div class="kad-field" style="position:absolute;left:-9999px;opacity:0;pointer-events:none" aria-hidden="true">
                     <label for="kad-company">Company</label>
                     <input id="kad-company" name="company" type="text" tabindex="-1" autocomplete="off">
                 </div>
 
-                <button class="kad-btn kad-btn--solid" type="submit">Enviar</button>
-                <div id="kad-status" aria-live="polite"></div>
+                <button class="kad-btn kad-btn--solid" type="submit">
+                    <i class="fas fa-paper-plane"></i>
+                    Enviar mensaje
+                </button>
+
+                <div id="kad-status" class="kad-status" aria-live="polite"></div>
+
+                <div style="text-align: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; color: #6c757d; font-size: 0.85rem;">
+                    <p style="margin: 0;">
+                        <i class="fas fa-shield-alt" style="color: #007bff;"></i>
+                        Tus datos están seguros y no serán compartidos con terceros.
+                    </p>
+                </div>
             </form>
         </div>
     </div>
+
     <!-- TOP BAR -->
     <div class="topbar" role="navigation" aria-label="Barra superior">
         <button class="burger" title="Menú" aria-label="Abrir menú" aria-controls="site-menu" aria-expanded="false">
@@ -531,7 +598,7 @@
             <div class="footer-bottom">
                 <div class="footer-brand">KADYC</div>
                 <div class="footer-copyright">
-                    <p>&copy; 2024 KADYC. Todos los derechos reservados.</p>
+                    <p>&copy; 2025 KADYC. Todos los derechos reservados.</p>
                     <p class="footer-location">Hecho con ❤️ en Costa Rica</p>
                 </div>
                 <div class="footer-certification">
